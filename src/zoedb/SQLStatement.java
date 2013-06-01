@@ -19,9 +19,11 @@
 
 package zoedb;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import zoedb.exception.NullObjectException;
 import zoedb.exception.TypeNotRegisteredException;
 import zoedb.result.Result;
 
@@ -30,9 +32,57 @@ public interface SQLStatement {
 	public String getType();
 	public String getTableName();
 	public String getStatement();
-	public void addClause(String clauseType, String body);
-	public void addClause(String clauseType, List expressionElements);
-	public void addClause(String clauseType, Map map);
-	public void addClause(String clauseType, SQLStatement nestedStmt);
+	public void addClause(String clauseType, String body) throws NullObjectException;
+	public void addClause(String clauseType, List expressionElements) throws NullObjectException;
+	public void addClause(String clauseType, Map map) throws NullObjectException;
+	public void addClause(String clauseType, SQLStatement nestedStmt) throws NullObjectException;
 	public Result execute();
+	
+	public static final SQLStatement NULL = new SQLStatement() {
+
+		@Override
+		public String getType() {
+			return "";
+		}
+
+		@Override
+		public String getTableName() {
+			return "";
+		}
+
+		@Override
+		public String getStatement() {
+			return "";
+		}
+
+		@Override
+		public void addClause(String clauseType, String body) throws NullObjectException {
+			throw new NullObjectException();
+			
+		}
+
+		@Override
+		public void addClause(String clauseType, List expressionElements) throws NullObjectException {
+			throw new NullObjectException();
+			
+		}
+
+		@Override
+		public void addClause(String clauseType, Map map) throws NullObjectException {
+			throw new NullObjectException();
+			
+		}
+
+		@Override
+		public void addClause(String clauseType, SQLStatement nestedStmt) throws NullObjectException {
+			throw new NullObjectException();
+			
+		}
+
+		@Override
+		public Result execute() {
+			return new Result();
+		}
+		
+	};
 }

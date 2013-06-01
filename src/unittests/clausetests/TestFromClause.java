@@ -1,10 +1,10 @@
 package unittests.clausetests;
 
 import junit.framework.TestCase;
+import unittests.testobjects.TestStatement;
 import zoedb.Clause;
 import zoedb.ClauseFactory;
 import zoedb.SQLStatement;
-import zoedb.SQLStatementFactory;
 
 public class TestFromClause extends TestCase {
 	
@@ -31,22 +31,13 @@ public class TestFromClause extends TestCase {
 	public void testCreateWithNestedStatement() throws Exception {
 		setUp();
 		ClauseFactory clauseFactory = ClauseFactory.getInstance();
-		SQLStatementFactory sqlFactory = SQLStatementFactory.getInstance();
-		
-		SQLStatement nested = sqlFactory.getSQLStatement("select", "OtherTable");
+		SQLStatement nested = new TestStatement();
 		nested.addClause("where", "Name='bobby'");
-		
 		Clause from = clauseFactory.getClause("from", nested);
 		
 		assertEquals("from", from.getType());
-		assertEquals("(SELECT * " +
-					 "FROM OtherTable " +
-					 "WHERE Name='bobby')", from.getBody());
-		assertEquals("FROM (" +
-						"SELECT * " +
-						"FROM OtherTable " +
-						"WHERE Name='bobby'" +
-						  ")", from.getClause());
+		assertEquals("(TEST STATEMENT)", from.getBody());
+		assertEquals("FROM (TEST STATEMENT)", from.getClause());
 	}
 
 }

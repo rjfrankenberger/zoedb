@@ -48,6 +48,7 @@ public class TestDeleteStatement extends TestCase {
 		SQLStatement delete = factory.getSQLStatement("delete", "test.mytable");
 		delete.addClause("where", "firstname='debra'");
 		Result result = delete.execute();
-		assertNull(result);
+		assertNotNull(result);
+		assertEquals(0, result.getNumberOfColumns());
 	}
 }

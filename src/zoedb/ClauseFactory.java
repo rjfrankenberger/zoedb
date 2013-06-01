@@ -43,10 +43,11 @@ public class ClauseFactory {
 		registeredClauseTypes.put(typeName, clauseClass);
 	}
 
+	//TODO: condense the various "getClause" functions into a class that follows the template pattern.
 	public Clause getClause(String clauseType, String clauseBody) throws Exception {
 		Class clauseClass = (Class) registeredClauseTypes.get(clauseType);
 		if(clauseClass == null) {
-			throw new TypeNotRegisteredException();
+			throw new TypeNotRegisteredException(clauseType, this.getClass());
 		}
 		Constructor[] clauseConstructors = clauseClass.getDeclaredConstructors();
 		Constructor clauseConstructor = null;
@@ -63,7 +64,7 @@ public class ClauseFactory {
 	public Clause getClause(String clauseType, String table, String columns) throws Exception {
 		Class clauseClass = (Class) registeredClauseTypes.get(clauseType);
 		if(clauseClass == null) {
-			throw new TypeNotRegisteredException();
+			throw new TypeNotRegisteredException(clauseType, this.getClass());
 		}
 		Constructor[] clauseConstructors = clauseClass.getDeclaredConstructors();
 		Constructor clauseConstructor = null;
@@ -81,7 +82,7 @@ public class ClauseFactory {
 	public Clause getClause(String clauseType, String table, List columns) throws Exception {
 		Class clauseClass = (Class) registeredClauseTypes.get(clauseType);
 		if(clauseClass == null) {
-			throw new TypeNotRegisteredException();
+			throw new TypeNotRegisteredException(clauseType, this.getClass());
 		}
 		Constructor[] clauseConstructors = clauseClass.getDeclaredConstructors();
 		Constructor clauseConstructor = null;
@@ -99,7 +100,7 @@ public class ClauseFactory {
 	public Clause getClause(String clauseType, List expressionList) throws Exception {
 		Class clauseClass = (Class) registeredClauseTypes.get(clauseType);
 		if(clauseClass == null) {
-			throw new TypeNotRegisteredException();
+			throw new TypeNotRegisteredException(clauseType, this.getClass());
 		}
 		Constructor[] clauseConstructors = clauseClass.getDeclaredConstructors();
 		Constructor clauseConstructor = null;
@@ -118,7 +119,7 @@ public class ClauseFactory {
 	public Clause getClause(String clauseType, Map map) throws Exception {
 		Class clauseClass = (Class) registeredClauseTypes.get(clauseType);
 		if(clauseClass == null) {
-			throw new TypeNotRegisteredException();
+			throw new TypeNotRegisteredException(clauseType, this.getClass());
 		}
 		Constructor[] clauseConstructors = clauseClass.getDeclaredConstructors();
 		Constructor clauseConstructor = null;
@@ -135,7 +136,7 @@ public class ClauseFactory {
 	public Clause getClause(String clauseType, SQLStatement nested) throws Exception {
 		Class clauseClass = (Class) registeredClauseTypes.get(clauseType);
 		if(clauseClass == null) {
-			throw new TypeNotRegisteredException();
+			throw new TypeNotRegisteredException(clauseType, this.getClass());
 		}
 		Constructor[] clauseConstructors = clauseClass.getDeclaredConstructors();
 		Constructor clauseConstructor = null;

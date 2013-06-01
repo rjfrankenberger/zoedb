@@ -58,9 +58,9 @@ public class SelectStatement implements SQLStatement {
 	@Override
 	public String getStatement() {
 		ClauseFactory factory = ClauseFactory.getInstance();
-		Clause select = null;
-		Clause from = null;
-		Clause join = null;
+		Clause select = Clause.NULL;
+		Clause from = Clause.NULL;
+		Clause join = Clause.NULL;
 		ArrayList<Clause> wheres = new ArrayList<Clause>();
 		for (Clause clause : clauses) {
 			if(clause.getType().equalsIgnoreCase("select")) {
@@ -73,7 +73,7 @@ public class SelectStatement implements SQLStatement {
 				wheres.add(clause);
 			}
 		}
-		if(select == null) {
+		if(select.equals(Clause.NULL)) {
 			try {
 				select = factory.getClause("select", "*");
 			} catch (Exception e) {
@@ -88,7 +88,7 @@ public class SelectStatement implements SQLStatement {
 		
 		return String.format("%s %s %s%s;", select.getClause(), 
 											 from.getClause(), 
-											 join == null ? "" : join.getClause() + " ",
+											 join.equals(Clause.NULL) ? "" : join.getClause() + " ",
 											 whereClause);
 	}
 
@@ -124,6 +124,7 @@ public class SelectStatement implements SQLStatement {
 		}
 	}
 	
+	@Override
 	public Result execute() {
 		ConnectionPool pool = ConnectionPool.getInstance();
 		DBConnection con = pool.getConnection("standard");

@@ -70,7 +70,8 @@ public class TestUpdateStatement extends TestCase {
 		update.addClause("set", "firstname='steph'");
 		update.addClause("where", "firstname='stephanie'");
 		Result result = update.execute();
-		assertNull(result);
+		assertNotNull(result);
+		assertEquals(0, result.getNumberOfColumns());
 	}
 
 }

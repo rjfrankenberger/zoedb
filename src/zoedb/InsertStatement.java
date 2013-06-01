@@ -52,8 +52,8 @@ public class InsertStatement implements SQLStatement {
 
 	@Override
 	public String getStatement() {
-		Clause insert = null;
-		Clause values = null;
+		Clause insert = Clause.NULL;
+		Clause values = Clause.NULL;
 		for (Clause clause : clauses) {
 			if(clause.getType().equalsIgnoreCase("insert")) {
 				insert = clause;

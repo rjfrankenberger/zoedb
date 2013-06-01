@@ -24,5 +24,17 @@ public interface Clause {
 	public String getType();
 	public String getBody();
 	public String getClause();
+	
+	public static final Clause NULL = new Clause() {
+		public String getType() {
+			return "";
+		}
+		public String getBody() {
+			return "";
+		}
+		public String getClause() {
+			return "";
+		}
+	};
 
 }

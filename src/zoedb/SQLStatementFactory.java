@@ -44,7 +44,7 @@ public class SQLStatementFactory {
 	public SQLStatement getSQLStatement(String stmtType, String tableName) throws Exception {
 		Class statementClass = (Class) registeredStatementTypes.get(stmtType);
 		if(statementClass == null) {
-			throw new TypeNotRegisteredException();
+			throw new TypeNotRegisteredException(stmtType, this.getClass());
 		}
 		Constructor statementConstructor = statementClass.getDeclaredConstructor(new Class[] {String.class});
 		return (SQLStatement) statementConstructor.newInstance(tableName);

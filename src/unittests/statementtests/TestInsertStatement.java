@@ -55,7 +55,8 @@ public class TestInsertStatement extends TestCase {
 		insert.addClause("insert", "firstname, lastname");
 		insert.addClause("values", "'zoe', 'frankenberger'");
 		Result result = insert.execute();
-		assertNull(result);
+		assertNotNull(result);
+		assertEquals(0, result.getNumberOfColumns());
 	}
 
 }

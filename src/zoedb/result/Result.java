@@ -28,6 +28,10 @@ public class Result implements Iterable<ResultRow>{
 	List<String> attributes;
 	ArrayList<ResultRow> rows = new ArrayList<ResultRow>();
 	
+	public Result() {
+		this.attributes = new ArrayList<String>();
+	}
+	
 	public Result(List<String> attributes) {
 		this.attributes = attributes;
 	}

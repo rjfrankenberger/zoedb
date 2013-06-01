@@ -1,9 +1,8 @@
 package unittests.connectiontests;
 
 import junit.framework.TestCase;
-
+import unittests.testobjects.TestStatement;
 import zoedb.SQLStatement;
-import zoedb.SQLStatementFactory;
 import zoedb.connection.Connection;
 import zoedb.result.Result;
 
@@ -23,10 +22,10 @@ public class TestConnection extends TestCase {
 	public void testExecuteSQL() throws Exception {
 		setUp();
 		Connection con = new Connection();
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "TestTable");
-		Result result = con.executeStatement(select);
+		SQLStatement test = new TestStatement();
+		Result result = con.executeStatement(test);
 		assertNotNull(result);
+		assertEquals(0, result.getNumberOfColumns());
 	}
 
 }

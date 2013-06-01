@@ -76,7 +76,7 @@ public class StandardConnection implements DBConnection {
 	@Override
 	public Result execute(SQLStatement stmt) {
 			System.out.println(stmt.getStatement());
-			Result result = null;
+			Result result = new Result();
 			ArrayList<String> columnNames = new ArrayList<String>();
 			ResultSet rs = null;
 			ResultSetMetaData md = null;

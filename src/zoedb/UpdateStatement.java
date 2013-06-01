@@ -52,12 +52,11 @@ public class UpdateStatement implements SQLStatement {
 
 	@Override
 	public String getStatement() {
-//		Clause update = null;
-		Clause set = null;
+		Clause set = Clause.NULL;
 		ArrayList<Clause> wheres = new ArrayList<Clause>();
 		for (Clause clause : clauses) {
 			if(clause.getType().equalsIgnoreCase("update")) {
-//				update = clause;
+				
 			} else if(clause.getType().equalsIgnoreCase("set")) {
 				set = clause;
 			} else if(clause.getType().equalsIgnoreCase("where")) {

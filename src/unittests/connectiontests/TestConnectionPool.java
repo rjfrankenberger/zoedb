@@ -29,7 +29,7 @@ public class TestConnectionPool extends TestCase {
 		assertEquals(4, pool.getNumberOfAvailableConnections("standard"));
 		assertTrue(con instanceof StandardConnection);
 		pool.releaseConnection(con);
-//		assertNull(con);
+
 		assertEquals(5, pool.getNumberOfAvailableConnections("standard"));
 	}
 
