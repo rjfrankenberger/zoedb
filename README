@@ -1,0 +1,7 @@
+v1.01
+-- Updated some test cases that relied too heavily on classes other than the one they were testing. 
+-- Created a NULL objects for the SQLStatement and Clause interfaces.
+-- Changed the StandardConnection.execute() to always return a Result object instead of ever returning null.
+-- Updated various SQLStatement.getStatement() algorithms so null values are not used. 
+-- Made the exception message for TypeNotRegisteredException more descriptive.
+-- Created a new exception to throw when attempting illegal operations on an explicitly constructed null object.
