@@ -12,8 +12,8 @@ public class TestDBProperties extends TestCase {
 		assertEquals("standard", props.getProperty("type"));
 		assertEquals("com.mysql.jdbc.Driver", props.getProperty("driver"));
 		assertEquals("root", props.getProperty("dbuser"));
-		assertEquals("490sqlcapstone", props.getProperty("dbpass"));
-		assertEquals("127.0.0.1", props.getProperty("dbhost"));
+		assertEquals("password", props.getProperty("dbpass"));
+		assertEquals("localhost", props.getProperty("dbhost"));
 		assertEquals("3306", props.getProperty("dbport"));
 	}
 	
@@ -22,8 +22,8 @@ public class TestDBProperties extends TestCase {
 		assertEquals("standard", props.getProperty("DEFAULT", "type"));
 		assertEquals("com.mysql.jdbc.Driver", props.getProperty("DEFAULT", "driver"));
 		assertEquals("root", props.getProperty("DEFAULT", "dbuser"));
-		assertEquals("490sqlcapstone", props.getProperty("DEFAULT", "dbpass"));
-		assertEquals("127.0.0.1", props.getProperty("DEFAULT", "dbhost"));
+		assertEquals("password", props.getProperty("DEFAULT", "dbpass"));
+		assertEquals("localhost", props.getProperty("DEFAULT", "dbhost"));
 		assertEquals("3306", props.getProperty("DEFAULT", "dbport"));
 	}
 	
@@ -32,8 +32,8 @@ public class TestDBProperties extends TestCase {
 		assertEquals("standard", props.getProperty("DEFAULT", "type"));
 		assertEquals("com.mysql.jdbc.Driver", props.getProperty("DEFAULT", "driver"));
 		assertEquals("root", props.getProperty("DEFAULT", "dbuser"));
-		assertEquals("490sqlcapstone", props.getProperty("DEFAULT", "dbpass"));
-		assertEquals("127.0.0.1", props.getProperty("DEFAULT", "dbhost"));
+		assertEquals("password", props.getProperty("DEFAULT", "dbpass"));
+		assertEquals("localhost", props.getProperty("DEFAULT", "dbhost"));
 		assertEquals("3306", props.getProperty("DEFAULT", "dbport"));
 
 		assertEquals("ssh", props.getProperty("secondary", "type"));

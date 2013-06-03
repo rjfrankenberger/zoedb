@@ -6,20 +6,8 @@ import zoedb.SQLStatementFactory;
 import zoedb.result.Result;
 
 public class TestDeleteStatement extends TestCase {
-	
-	public void setUp() {
-		try {
-			Class.forName("zoedb.DeleteStatement");
-			Class.forName("zoedb.DeleteClause");
-			Class.forName("zoedb.WhereClause");
-			Class.forName("zoedb.connection.StandardConnection");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
+
 	public void testCreateWithWhereString() throws Exception {
-		setUp();
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
 		SQLStatement delete = factory.getSQLStatement("delete", "TestTable");
 		delete.addClause("where", "Name='bobby'");
@@ -30,7 +18,6 @@ public class TestDeleteStatement extends TestCase {
 	}
 	
 	public void testCreateWithMultiWhereString() throws Exception {
-		setUp();
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
 		SQLStatement delete = factory.getSQLStatement("delete", "TestTable");
 		delete.addClause("where", "Name='bobby'");
@@ -43,7 +30,6 @@ public class TestDeleteStatement extends TestCase {
 	}
 
 	public void testExecute() throws Exception {
-		setUp();
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
 		SQLStatement delete = factory.getSQLStatement("delete", "test.mytable");
 		delete.addClause("where", "firstname='debra'");

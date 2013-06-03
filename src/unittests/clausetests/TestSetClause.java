@@ -8,17 +8,8 @@ import zoedb.Clause;
 import zoedb.ClauseFactory;
 
 public class TestSetClause extends TestCase {
-	
-	public void setUp() {
-		try {
-			Class.forName("zoedb.SetClause");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
+
 	public void testCreateWithString() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause set = factory.getClause("set", "Name='bobby', Age=29");
 		assertEquals("set", set.getType());
@@ -27,7 +18,6 @@ public class TestSetClause extends TestCase {
 	}
 	
 	public void testCreateWithList() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("Name='bobby'");
@@ -39,7 +29,6 @@ public class TestSetClause extends TestCase {
 	}
 	
 	public void testCreateWithMap() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		HashMap<String,String> map = new HashMap<String,String>();
 		map.put("Name", "'bobby'");

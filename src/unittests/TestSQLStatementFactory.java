@@ -12,20 +12,7 @@ import zoedb.exception.TypeNotRegisteredException;
 
 public class TestSQLStatementFactory extends TestCase {
 	
-	public void setUp() {
-		try {
-			Class.forName("zoedb.SelectStatement");
-			Class.forName("zoedb.InsertStatement");
-			Class.forName("zoedb.UpdateStatement");
-			Class.forName("zoedb.DeleteStatement");
-			Class.forName("zoedb.FromClause");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public void testGetSelectStatement() throws Exception {
-		setUp();
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
 		SQLStatement select = factory.getSQLStatement("select", "TestTable");
 		assertTrue(select instanceof SelectStatement);

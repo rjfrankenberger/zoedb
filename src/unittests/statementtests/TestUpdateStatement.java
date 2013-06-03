@@ -9,19 +9,7 @@ import zoedb.SQLStatementFactory;
 import zoedb.result.Result;
 
 public class TestUpdateStatement extends TestCase {
-	
-	public void setUp() {
-		try {
-			Class.forName("zoedb.UpdateStatement");
-			Class.forName("zoedb.UpdateClause");
-			Class.forName("zoedb.SetClause");
-			Class.forName("zoedb.WhereClause");
-			Class.forName("zoedb.connection.StandardConnection");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
+
 	public void testCreateWithSetString() throws Exception {
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
 		SQLStatement update = factory.getSQLStatement("update", "TestTable");

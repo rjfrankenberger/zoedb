@@ -9,24 +9,8 @@ import zoedb.result.Result;
 import junit.framework.TestCase;
 
 public class TestSelectStatement extends TestCase {
-	
-	public void setUp() {
-		try {
-			Class.forName("zoedb.SelectStatement");
-//			Class.forName("zoedb.NullStatement");
-			Class.forName("zoedb.SelectClause");
-			Class.forName("zoedb.FromClause");
-			Class.forName("zoedb.JoinClause");
-			Class.forName("zoedb.WhereClause");
-//			Class.forName("zoedb.NullClause");
-			Class.forName("zoedb.connection.StandardConnection");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
+
 	public void testCreateWithColumnList() throws Exception {
-		setUp();
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
 		SQLStatement select = factory.getSQLStatement("select", "TestTable");
 		ArrayList<String> columnList = new ArrayList<String>();

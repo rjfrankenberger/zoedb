@@ -11,22 +11,7 @@ import zoedb.SQLStatementFactory;
 import zoedb.exception.TypeNotRegisteredException;
 
 public class TestClauseFactory extends TestCase {
-	
-	public void setUp() {
-		try {
-			Class.forName("zoedb.SelectStatement");
-			Class.forName("zoedb.SelectClause");
-			Class.forName("zoedb.FromClause");
-			Class.forName("zoedb.WhereClause");
-			Class.forName("zoedb.InsertClause");
-			Class.forName("zoedb.SetClause");
-			Class.forName("zoedb.ValuesClause");
-			Class.forName("zoedb.UpdateClause");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
+
 	public void testGetInstance() {
 		ClauseFactory factory1 = ClauseFactory.getInstance();
 		ClauseFactory factory2 = ClauseFactory.getInstance();
@@ -34,7 +19,6 @@ public class TestClauseFactory extends TestCase {
 	}
 	
 	public void testUnregisteredClauseType() {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		try {
 			Clause clause = factory.getClause("badType", "dummyString");
@@ -44,7 +28,6 @@ public class TestClauseFactory extends TestCase {
 	}
 	
 	public void testGetSelectClause() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause select = factory.getClause("select", "*");
 		assertTrue(select instanceof Clause);
@@ -53,7 +36,6 @@ public class TestClauseFactory extends TestCase {
 	}
 	
 	public void testGetFromClause() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause from = factory.getClause("from", "TestTable");
 		assertTrue(from instanceof Clause);
@@ -62,7 +44,6 @@ public class TestClauseFactory extends TestCase {
 	}
 	
 	public void testGetWhereClause() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause where = factory.getClause("where", "Name='bobby'");
 		assertTrue(where instanceof Clause);
@@ -71,7 +52,6 @@ public class TestClauseFactory extends TestCase {
 	}
 	
 	public void testGetInsertClause() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause insert = factory.getClause("insert", "TestTable", "column1, column2, column3");
 		assertTrue(insert instanceof Clause);
@@ -80,7 +60,6 @@ public class TestClauseFactory extends TestCase {
 	}
 	
 	public void testGetClauseStringStringList() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		ArrayList<String> columns = new ArrayList<String>();
 		columns.add("column1");
@@ -93,7 +72,6 @@ public class TestClauseFactory extends TestCase {
 	}
 	
 	public void testGetClauseStringList() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		ArrayList<String> valueList = new ArrayList<String>();
 		valueList.add("value1");
@@ -106,7 +84,6 @@ public class TestClauseFactory extends TestCase {
 	}
 	
 	public void testGetClauseStringMap() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		HashMap<String,String> map = new HashMap<String,String>();
 		map.put("Name", "'bobby'");
@@ -119,7 +96,6 @@ public class TestClauseFactory extends TestCase {
 	}
 	
 	public void testGetClauseStringSQLStatement() throws Exception {
-		setUp();
 		ClauseFactory clauseFactory = ClauseFactory.getInstance();
 		SQLStatementFactory sqlFactory = SQLStatementFactory.getInstance();
 		SQLStatement nested = sqlFactory.getSQLStatement("select", "OtherTable");

@@ -8,20 +8,8 @@ import zoedb.SQLStatementFactory;
 import zoedb.result.Result;
 
 public class TestInsertStatement extends TestCase {
-	
-	public void setUp() {
-		try {
-			Class.forName("zoedb.InsertStatement");
-			Class.forName("zoedb.InsertClause");
-			Class.forName("zoedb.ValuesClause");
-			Class.forName("zoedb.connection.StandardConnection");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
+
 	public void testCreateWithColumnString() throws Exception {
-		setUp();
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
 		SQLStatement insert = factory.getSQLStatement("insert", "TestTable");
 		insert.addClause("insert", "column1, column2, column3");
@@ -33,7 +21,6 @@ public class TestInsertStatement extends TestCase {
 	}
 	
 	public void testCreateWithColumnList() throws Exception {
-		setUp();
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
 		SQLStatement insert = factory.getSQLStatement("insert", "TestTable");
 		ArrayList<String> columns = new ArrayList<String>();
@@ -49,7 +36,6 @@ public class TestInsertStatement extends TestCase {
 	}
 	
 	public void testExecute() throws Exception {
-		setUp();
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
 		SQLStatement insert = factory.getSQLStatement("insert", "test.mytable");
 		insert.addClause("insert", "firstname, lastname");

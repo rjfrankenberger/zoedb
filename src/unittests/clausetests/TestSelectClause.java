@@ -7,17 +7,8 @@ import zoedb.Clause;
 import zoedb.ClauseFactory;
 
 public class TestSelectClause extends TestCase {
-	
-	public void setUp() {
-		try {
-			Class.forName("zoedb.SelectClause");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public void testCreateWithString() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause select = factory.getClause("select", "column1");
 		assertEquals("select", select.getType());
@@ -26,7 +17,6 @@ public class TestSelectClause extends TestCase {
 	}
 	
 	public void testCreateWithList() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		ArrayList<String> columnList = new ArrayList<String>();
 		columnList.add("column1");

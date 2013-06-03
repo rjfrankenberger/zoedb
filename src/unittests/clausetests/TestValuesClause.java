@@ -8,16 +8,7 @@ import zoedb.ClauseFactory;
 
 public class TestValuesClause extends TestCase {
 	
-	public void setUp() {
-		try {
-			Class.forName("zoedb.ValuesClause");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public void testCreateWithString() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause values = factory.getClause("values", "value1, value2, value3");
 		assertEquals("values", values.getType());
@@ -26,7 +17,6 @@ public class TestValuesClause extends TestCase {
 	}
 	
 	public void testCreateWithList() throws Exception {
-		setUp();
 		ClauseFactory factory = ClauseFactory.getInstance();
 		ArrayList<String> valueList = new ArrayList<String>();
 		valueList.add("value1");
