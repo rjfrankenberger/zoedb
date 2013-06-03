@@ -1,7 +1,10 @@
-v1.01
+v1.0.1
 -- Updated some test cases that relied too heavily on classes other than the one they were testing. 
 -- Created a NULL objects for the SQLStatement and Clause interfaces.
 -- Changed the StandardConnection.execute() to always return a Result object instead of ever returning null.
 -- Updated various SQLStatement.getStatement() algorithms so null values are not used. 
 -- Made the exception message for TypeNotRegisteredException more descriptive.
 -- Created a new exception to throw when attempting illegal operations on an explicitly constructed null object.
+
+v1.0.2
+-- Created a TypeLoader class that handles loading all the different Clause, Statement, and Connection types in order to register them with factories. This TypeLoader is used in a static code block in the factory classes to elliminate the need for the programmer to worry about explicitly loading a class.
