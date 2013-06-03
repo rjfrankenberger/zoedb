@@ -30,6 +30,10 @@ public class SQLStatementFactory {
 	private static SQLStatementFactory instance;
 	private static HashMap registeredStatementTypes = new HashMap();
 	
+	static {
+		zoedb.util.TypeLoader.loadTypes();
+	}
+	
 	public static SQLStatementFactory getInstance() {
 		if(instance == null) {
 			instance = new SQLStatementFactory();

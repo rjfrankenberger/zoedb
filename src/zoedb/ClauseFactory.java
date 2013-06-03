@@ -32,6 +32,10 @@ public class ClauseFactory {
 	private static ClauseFactory instance;
 	private static HashMap registeredClauseTypes = new HashMap();
 	
+	static {
+		zoedb.util.TypeLoader.loadTypes();
+	}
+	
 	public static ClauseFactory getInstance() {
 		if(instance == null) {
 			instance = new ClauseFactory();
