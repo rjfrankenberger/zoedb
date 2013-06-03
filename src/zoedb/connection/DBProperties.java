@@ -89,7 +89,7 @@ public class DBProperties extends DefaultHandler {
 	
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		String s = new String(ch, start, length);
-		if(s.equals("\n") || s.equals("\t")) {
+		if(s.contains("\n") || s.contains("\t")) {
 			// do nothing
 		} else {
 			this.tempVal = new String(ch, start, length);
