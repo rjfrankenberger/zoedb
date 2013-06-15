@@ -11,7 +11,15 @@ public class TestDeleteClause extends TestCase {
 		Clause delete = factory.getClause("delete", "TestTable");
 		assertEquals("delete", delete.getType());
 		assertEquals("TestTable", delete.getBody());
-		assertEquals("DELETE FROM TestTable", delete.getClause());
+		assertEquals("DELETE FROM test.TestTable", delete.getClause());
+	}
+	
+	public void testSpecifyConnectionName() throws Exception {
+		ClauseFactory factory = ClauseFactory.getInstance();
+		Clause delete = factory.getClause("delete", "TestTable", "secondary");
+		assertEquals("delete", delete.getType());
+		assertEquals("TestTable", delete.getBody());
+		assertEquals("DELETE FROM test.TestTable", delete.getClause());
 	}
 
 }
