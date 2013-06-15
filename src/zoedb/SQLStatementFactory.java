@@ -22,6 +22,8 @@ package zoedb;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
+import org.json.JSONObject;
+
 import zoedb.exception.TypeNotRegisteredException;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -54,7 +56,16 @@ public class SQLStatementFactory {
 		return (SQLStatement) statementConstructor.newInstance(tableName);
 	}
 	
+	public SQLStatement getSQLStatement(String stmtType, JSONObject json) throws Exception {
+		Class statementClass = (Class) registeredStatementTypes.get(stmtType);
+		if(statementClass == null) {
+			throw new TypeNotRegisteredException(stmtType, this.getClass());
+		}
+		Constructor statementConstructor = statementClass.getDeclaredConstructor(new Class[] {JSONObject.class});
+		return (SQLStatement) statementConstructor.newInstance(json);
+	}
+	
 	public SQLStatement getSQLStatement(String stmtType) throws Exception {
-		return getSQLStatement(stmtType, null);
+		return getSQLStatement(stmtType, "");
 	}
 }

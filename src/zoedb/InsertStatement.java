@@ -23,13 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import zoedb.connection.ConnectionPool;
 import zoedb.connection.DBConnection;
 import zoedb.result.Result;
 
 public class InsertStatement implements SQLStatement {
 	
-	private final String tableName;
+	private String tableName;
 	private ArrayList<Clause> clauses = new ArrayList<Clause>();
 	
 	static {
@@ -38,6 +42,33 @@ public class InsertStatement implements SQLStatement {
 	
 	public InsertStatement(String tableName) {
 		this.tableName = tableName;
+	}
+	
+	public InsertStatement(JSONObject json) {
+		try {
+			this.tableName = json.getString("table");
+			for (String fieldName : JSONObject.getNames(json)) {
+				if(fieldName.equalsIgnoreCase("insert")) {
+					JSONArray insertArray = json.getJSONArray("insert");
+					ArrayList<String> columns = new ArrayList<String>();
+					String values = "";
+					for(int i = 0; i < insertArray.length(); i++) {
+						JSONObject insert = insertArray.getJSONObject(i);
+						columns.add(insert.getString("attribute"));
+						values += (insert.get("value") instanceof String) ? "'" + insert.getString("value") + "'" : insert.get("value");
+						values += ", ";
+					}
+					values = values.substring(0, values.length() - 2);
+					this.addClause("insert", columns);
+					this.addClause("values", values);
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		if(this.tableName == null) {
+			this.tableName = "";
+		}
 	}
 
 	@Override

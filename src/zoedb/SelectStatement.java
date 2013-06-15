@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import zoedb.connection.ConnectionPool;
 import zoedb.connection.DBConnection;
 import zoedb.result.Result;
@@ -44,6 +48,39 @@ public class SelectStatement implements SQLStatement {
 			e.printStackTrace();
 		}
 	}
+	
+	public SelectStatement(JSONObject json) {
+		String table = "";
+		try {
+			table = json.getString("table");
+			clauses.add(ClauseFactory.getInstance().getClause("from", table));
+			for (String fieldName : JSONObject.getNames(json)) {
+				if(fieldName.equalsIgnoreCase("select")) {
+					this.addClause(fieldName, json.getString(fieldName));
+				} else if(fieldName.equalsIgnoreCase("join")) {
+					JSONArray joinArray = json.getJSONArray("join");
+					for(int i = 0; i < joinArray.length(); i++) {
+						JSONObject join = joinArray.getJSONObject(i);
+						this.addClause("join", join.getString("table") + " ON " 
+												+ join.getString("lhs") + "=" + join.getString("rhs"));
+					}
+				} else if(fieldName.equalsIgnoreCase("where")) {
+					JSONArray whereArray = json.getJSONArray("where");
+					for(int i = 0; i < whereArray.length(); i++) {
+						JSONObject where = whereArray.getJSONObject(i);
+						String expression = "";
+						expression += where.getString("attribute") + "=";
+						expression += (where.get("value") instanceof String) ? "'" + where.getString("value") + "'" : where.get("value");
+						this.addClause("where", expression);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		this.tableName = table;
+	}
 
 	@Override
 	public String getType() {
@@ -60,7 +97,8 @@ public class SelectStatement implements SQLStatement {
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause select = Clause.NULL;
 		Clause from = Clause.NULL;
-		Clause join = Clause.NULL;
+//		Clause join = Clause.NULL;
+		ArrayList<Clause> joins = new ArrayList<Clause>();
 		ArrayList<Clause> wheres = new ArrayList<Clause>();
 		for (Clause clause : clauses) {
 			if(clause.getType().equalsIgnoreCase("select")) {
@@ -68,7 +106,8 @@ public class SelectStatement implements SQLStatement {
 			} else if(clause.getType().equalsIgnoreCase("from")) {
 				from = clause;
 			} else if(clause.getType().equalsIgnoreCase("join")) {
-				join = clause;
+//				join = clause;
+				joins.add(clause);
 			} else if(clause.getType().equalsIgnoreCase("where")) {
 				wheres.add(clause);
 			}
@@ -86,9 +125,15 @@ public class SelectStatement implements SQLStatement {
 			whereClause += " AND " + wheres.get(i).getBody();
 		}
 		
+		String joinClause = "";
+		for(int i = 0; i < joins.size(); i++) {
+			joinClause += joins.get(i).getClause() + " ";
+		}
+		
 		return String.format("%s %s %s%s;", select.getClause(), 
 											 from.getClause(), 
-											 join.equals(Clause.NULL) ? "" : join.getClause() + " ",
+//											 join.equals(Clause.NULL) ? "" : join.getClause() + " ",
+											 joinClause,
 											 whereClause);
 	}
 

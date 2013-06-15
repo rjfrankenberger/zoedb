@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import zoedb.connection.ConnectionPool;
 import zoedb.connection.DBConnection;
 import zoedb.result.Result;
@@ -38,6 +42,27 @@ public class DeleteStatement implements SQLStatement {
 	
 	public DeleteStatement(String tableName) {
 		this.tableName = tableName;
+	}
+	
+	public DeleteStatement(JSONObject json) {
+		String table = "";
+		try {
+			table = json.getString("table");
+			for (String fieldName : JSONObject.getNames(json)) {
+				if(fieldName.equalsIgnoreCase("where")) {
+					JSONArray whereArray = json.getJSONArray("where");
+					for(int i = 0; i < whereArray.length(); i++) {
+						JSONObject where = whereArray.getJSONObject(i);
+						String expression = where.getString("attribute") + "=";
+						expression += (where.get("value") instanceof String) ? "'" + where.getString("value") + "'" : where.get("value");
+						this.addClause("where", expression);
+					}
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		this.tableName = table;
 	}
 
 	@Override
