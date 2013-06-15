@@ -19,9 +19,12 @@
 
 package zoedb;
 
+import zoedb.connection.DBProperties;
+
 public class DeleteClause implements Clause {
 	
 	private final String body;
+	private final String connectionName;
 	
 	static {
 		ClauseFactory.getInstance().registerClauseType("delete", DeleteClause.class);
@@ -29,6 +32,12 @@ public class DeleteClause implements Clause {
 	
 	public DeleteClause(String table) {
 		this.body = table;
+		this.connectionName = "DEFAULT";
+	}
+	
+	public DeleteClause(String table, String connectionName) {
+		this.body = table;
+		this.connectionName = connectionName;
 	}
 
 	@Override
@@ -43,7 +52,8 @@ public class DeleteClause implements Clause {
 
 	@Override
 	public String getClause() {
-		return "DELETE FROM " + this.body;
+		DBProperties props = DBProperties.getProperties();
+		return String.format("DELETE FROM %s.%s", props.getProperty(connectionName, "defaultschema"), this.body);
 	}
 
 }
