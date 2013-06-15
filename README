@@ -9,3 +9,8 @@ v1.0.1
 v1.0.2
 -- Created a TypeLoader class that handles loading all the different Clause, Statement, and Connection types in order to register them with factories. This TypeLoader is used in a static code block in the factory classes to elliminate the need for the programmer to worry about explicitly loading a class.
 -- Fixed minor bug in DBProperties involving improper handling of newline and tab characters during XML parsing.
+
+v1.1.0
+-- Fixed a bug that prevented SELECT statements from being created with more than one JOIN clause. 
+-- Statements can now be constructed by passing a JSON formatted String as an argument to the Factory method.
+-- Results can now return the data in in JSON format by calling Result.JSONString().
