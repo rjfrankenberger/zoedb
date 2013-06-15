@@ -49,5 +49,19 @@ public class TestResult extends TestCase {
 			i++;
 		}
 	}
+	
+	public void testSize() throws Exception {
+		setUp();
+		assertEquals(3, r.size());
+	}
+	
+	public void testJSONString() throws Exception {
+		String testString = "[" +
+							   "{'column1' : 1, 'column2' : 'row1', 'column3' : 1.11}, " +
+							   "{'column1' : 2, 'column2' : 'row2', 'column3' : 2.22}, " +
+							   "{'column1' : 3, 'column2' : 'row3', 'column3' : 3.33}" +
+							  "]";
+		assertEquals(testString, r.JSONString());
+	}
 
 }

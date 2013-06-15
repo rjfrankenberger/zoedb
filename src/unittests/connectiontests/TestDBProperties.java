@@ -15,6 +15,7 @@ public class TestDBProperties extends TestCase {
 		assertEquals("password", props.getProperty("dbpass"));
 		assertEquals("localhost", props.getProperty("dbhost"));
 		assertEquals("3306", props.getProperty("dbport"));
+		assertEquals("test", props.getProperty("defaultschema"));
 	}
 	
 	public void testPropertiesPassConnectionName() throws Exception {
@@ -25,6 +26,7 @@ public class TestDBProperties extends TestCase {
 		assertEquals("password", props.getProperty("DEFAULT", "dbpass"));
 		assertEquals("localhost", props.getProperty("DEFAULT", "dbhost"));
 		assertEquals("3306", props.getProperty("DEFAULT", "dbport"));
+		assertEquals("test", props.getProperty("DEFAULT", "defaultschema"));
 	}
 	
 	public void testPropertiesTwoConnections() throws Exception {
@@ -35,6 +37,7 @@ public class TestDBProperties extends TestCase {
 		assertEquals("password", props.getProperty("DEFAULT", "dbpass"));
 		assertEquals("localhost", props.getProperty("DEFAULT", "dbhost"));
 		assertEquals("3306", props.getProperty("DEFAULT", "dbport"));
+		assertEquals("test", props.getProperty("DEFAULT", "defaultschema"));
 
 		assertEquals("ssh", props.getProperty("secondary", "type"));
 		assertEquals("com.mysql.jdbc.Driver", props.getProperty("secondary", "driver"));
@@ -42,5 +45,6 @@ public class TestDBProperties extends TestCase {
 		assertEquals("easy", props.getProperty("secondary", "dbpass"));
 		assertEquals("localhost", props.getProperty("secondary", "dbhost"));
 		assertEquals("3366", props.getProperty("secondary", "dbport"));
+		assertEquals("test", props.getProperty("secondary", "defaultschema"));
 	}
 }
