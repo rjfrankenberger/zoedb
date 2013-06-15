@@ -35,12 +35,21 @@ import org.xml.sax.helpers.DefaultHandler;
 public class DBProperties extends DefaultHandler {
 	
 	private static DBProperties instance;
-	private static File propsFile = new File("C:\\Users\\Robert\\Dropbox\\Java Projects\\ZoeDB\\conf", "ZoeDB.properties");
+	private static File propsFile;
 	private HashMap<String,Hashtable<String,String>> props;	
 	private String currentConnectionName = "";
 	private Hashtable<String,String> currentConnectionProps = null;
 	private String tempKey = "";
 	private String tempVal = "";
+	
+	static {
+		try {
+			System.out.println(new File(".").getCanonicalPath());
+			propsFile = new File(new File(".").getCanonicalPath() + "/conf", "ZoeDB.properties");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private DBProperties() {
 			props = new HashMap<String,Hashtable<String,String>>();
