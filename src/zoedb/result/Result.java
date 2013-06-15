@@ -51,4 +51,25 @@ public class Result implements Iterable<ResultRow>{
 	public Iterator<ResultRow> iterator() {
 		return rows.iterator();
 	}
+	
+	public int size() {
+		return this.rows.size();
+	}
+	
+	public String JSONString() {
+		String json = "[";
+		List<String> attributes = this.getAttributeList();
+		
+		for (ResultRow row : this) {
+			json += "{";
+			for (String attr : attributes) {
+				json += "'" + attr + "': ";
+				json += (row.get(attr).getValue() instanceof String) ? "'" + row.get(attr).getValue() + "'" : row.get(attr).getValue();
+				json += ", ";
+			} 
+			json += json.substring(0, json.length() -1 ) + "},";
+		}
+		
+		return json.substring(0, json.length() - 1) + "]";
+	}
 }
