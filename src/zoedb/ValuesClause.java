@@ -19,6 +19,7 @@
 
 package zoedb;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ValuesClause implements Clause {
@@ -34,12 +35,29 @@ public class ValuesClause implements Clause {
 	}
 	
 	public ValuesClause(List values) {
-		String tempBody = "(";
-		for (Object value : values) {
-			tempBody += value + ", ";
+		String theBody = "";
+		if(values.get(0) instanceof ValuesClause) {
+			for (Object clause : values) {
+				theBody += ((ValuesClause)clause).body + ",";
+			}
+			theBody = theBody.substring(0, theBody.length() - 1);
+		} else {
+			theBody = "(";
+			for (Object value : values) {
+				theBody += value + ", ";
+			}
+			theBody = theBody.substring(0, theBody.length() - 2) + ")";
 		}
-		this.body = tempBody.substring(0, tempBody.length() - 2) + ")";
+		this.body = theBody;
 	}
+	
+//	public ValuesClause(ArrayList<ValuesClause> values) {
+//		String theBody = "";
+//		for (ValuesClause clause : values) {
+//			theBody += clause.body + ",";
+//		}
+//		this.body = theBody.substring(0, theBody.length() - 1);
+//	}
 
 	@Override
 	public String getType() {

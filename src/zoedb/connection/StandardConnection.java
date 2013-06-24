@@ -19,15 +19,19 @@
 
 package zoedb.connection;
 
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import zoedb.SQLStatement;
+import zoedb.SQLStatementFactory;
 import zoedb.result.Result;
 import zoedb.result.ResultRow;
 import zoedb.result.RowEntry;
@@ -78,6 +82,7 @@ public class StandardConnection implements DBConnection {
 			System.out.println(stmt.getStatement());
 			Result result = new Result();
 			ArrayList<String> columnNames = new ArrayList<String>();
+			ArrayList<Integer> columnTypes = new ArrayList<Integer>();
 			ResultSet rs = null;
 			ResultSetMetaData md = null;
 			try {
@@ -88,16 +93,37 @@ public class StandardConnection implements DBConnection {
 					// get column names to pass to Result constructor
 					for(int i = 1; i <= md.getColumnCount(); i++) {
 						columnNames.add(md.getColumnName(i));
-						if(java.sql.Types.INTEGER == md.getColumnType(i)) {
-							System.out.println(md.getColumnTypeName(i));
-						}
+						columnTypes.add(md.getColumnType(i));
 					}
 					result = new Result(columnNames);
 					while(rs.next()) {
-//						System.out.println(rs.getRow());
 						ResultRow row = new ResultRow();
-						for (String col : columnNames) {
-							row.add(new RowEntry(col, rs.getString(col)));
+						for(int i = 0; i < columnNames.size(); i++) {
+							switch(columnTypes.get(i)) {
+								case Types.INTEGER:
+								{
+									row.add(new RowEntry(columnNames.get(i), rs.getInt(columnNames.get(i))));
+									break;
+								}
+								case Types.VARCHAR:
+								{
+									row.add(new RowEntry(columnNames.get(i), rs.getString(columnNames.get(i))));
+									break;
+								}
+								case Types.TIMESTAMP:
+								{
+									Timestamp t = rs.getTimestamp(columnNames.get(i));
+									java.util.Date d = t;
+									SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+									String date = sdf.format(d);
+									row.add(new RowEntry(columnNames.get(i), date));
+									break;
+								}
+								default:
+								{
+									row.add(new RowEntry(columnNames.get(i), rs.getString(columnNames.get(i))));
+								}
+							}
 						}
 						result.insert(row);
 					}
@@ -113,7 +139,9 @@ public class StandardConnection implements DBConnection {
 				
 			} catch (SQLException e) {
 				e.printStackTrace();
-			}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
 			return result;
 	}
 	

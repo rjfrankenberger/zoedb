@@ -58,18 +58,21 @@ public class Result implements Iterable<ResultRow>{
 	
 	public String JSONString() {
 		String json = "[";
-		List<String> attributes = this.getAttributeList();
-		
-		for (ResultRow row : this) {
-			json += "{";
-			for (String attr : attributes) {
-				json += "'" + attr + "': ";
-				json += (row.get(attr).getValue() instanceof String) ? "'" + row.get(attr).getValue() + "'" : row.get(attr).getValue();
-				json += ", ";
-			} 
-			json += json.substring(0, json.length() -1 ) + "},";
+		if(this.size() > 0) {
+			List<String> attributes = this.getAttributeList();
+			
+			for (ResultRow row : this) {
+				json += "{";
+				for (String attr : attributes) {
+					json += "\"" + attr + "\" : ";
+					json += (row.get(attr).getValue() instanceof String) ? "\"" + row.get(attr).getValue() + "\"" : row.get(attr).getValue();
+					json += ", ";
+				} 
+				json = json.substring(0, json.length() - 2 ) + "}, ";
+			}
+			
+			return json.substring(0, json.length() - 2) + "]";
 		}
-		
-		return json.substring(0, json.length() - 1) + "]";
+		return "{}";
 	}
 }

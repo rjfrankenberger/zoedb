@@ -19,6 +19,8 @@
 
 package zoedb;
 
+import zoedb.connection.DBProperties;
+
 public class FromClause implements Clause {
 	
 	private final String body;
@@ -28,7 +30,11 @@ public class FromClause implements Clause {
 	}
 	
 	public FromClause(String clauseBody) {
-		this.body = clauseBody;
+		if(clauseBody.contains(".")) {
+			this.body = clauseBody;
+		} else {
+			this.body = DBProperties.getProperties().getProperty("defaultschema") + "." + clauseBody;
+		}
 	}
 	
 	public FromClause(SQLStatement nestedStmt) {

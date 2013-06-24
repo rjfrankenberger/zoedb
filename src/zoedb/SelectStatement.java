@@ -73,6 +73,14 @@ public class SelectStatement implements SQLStatement {
 						expression += (where.get("value") instanceof String) ? "'" + where.getString("value") + "'" : where.get("value");
 						this.addClause("where", expression);
 					}
+				} else if(fieldName.equalsIgnoreCase("order by")) {
+					JSONArray orderByArray = json.getJSONArray("order by");
+					ArrayList<String> instructions = new ArrayList<String>();
+					for(int i = 0; i < orderByArray.length(); i++) {
+						JSONObject orderBy = orderByArray.getJSONObject(i);
+						instructions.add(orderBy.getString("instruction"));
+					}
+					this.addClause("order by", instructions);
 				}
 			}
 		} catch (Exception e) {
@@ -97,19 +105,20 @@ public class SelectStatement implements SQLStatement {
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause select = Clause.NULL;
 		Clause from = Clause.NULL;
-//		Clause join = Clause.NULL;
 		ArrayList<Clause> joins = new ArrayList<Clause>();
 		ArrayList<Clause> wheres = new ArrayList<Clause>();
+		Clause orderBy = Clause.NULL;
 		for (Clause clause : clauses) {
 			if(clause.getType().equalsIgnoreCase("select")) {
 				select = clause;
 			} else if(clause.getType().equalsIgnoreCase("from")) {
 				from = clause;
 			} else if(clause.getType().equalsIgnoreCase("join")) {
-//				join = clause;
 				joins.add(clause);
 			} else if(clause.getType().equalsIgnoreCase("where")) {
 				wheres.add(clause);
+			} else if(clause.getType().equalsIgnoreCase("order by")) {
+				orderBy = clause;
 			}
 		}
 		if(select.equals(Clause.NULL)) {
@@ -130,11 +139,11 @@ public class SelectStatement implements SQLStatement {
 			joinClause += joins.get(i).getClause() + " ";
 		}
 		
-		return String.format("%s %s %s%s;", select.getClause(), 
+		return String.format("%s %s %s%s%s;", select.getClause(), 
 											 from.getClause(), 
-//											 join.equals(Clause.NULL) ? "" : join.getClause() + " ",
 											 joinClause,
-											 whereClause);
+											 whereClause,
+											 (orderBy.equals(Clause.NULL)) ? "" : " " + orderBy.getClause());
 	}
 
 	@Override
