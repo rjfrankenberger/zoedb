@@ -14,3 +14,9 @@ v1.1.0
 -- Fixed a bug that prevented SELECT statements from being created with more than one JOIN clause. 
 -- Statements can now be constructed by passing a JSON formatted String as an argument to the Factory method.
 -- Results can now return the data in in JSON format by calling Result.JSONString().
+
+v1.2.0
+-- Fixed a but that prevented creating a VALUES clause with multiple tuples.
+-- Multiple rows can now be added via INSERT statements by successive calls to insertStmt.addClause("values", <comma separated values string>)
+-- Multiple rows insertion was added to the JSON functionality. 
+-- SELECT statements now support GROUP BY clauses.
