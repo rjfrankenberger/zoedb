@@ -10,10 +10,10 @@ public class TestFromClause extends TestCase {
 	
 	public void testCreateWithString() throws Exception {
 		ClauseFactory factory = ClauseFactory.getInstance();
-		Clause from = factory.getClause("from", "TestTable");
+		Clause from = factory.getClause("from", "test.TestTable");
 		assertEquals("from", from.getType());
-		assertEquals("TestTable", from.getBody());
-		assertEquals("FROM TestTable", from.getClause());
+		assertEquals("test.TestTable", from.getBody());
+		assertEquals("FROM test.TestTable", from.getClause());
 	}
 	
 	public void testCreateWithNestedStatement() throws Exception {
@@ -25,6 +25,14 @@ public class TestFromClause extends TestCase {
 		assertEquals("from", from.getType());
 		assertEquals("(TEST STATEMENT)", from.getBody());
 		assertEquals("FROM (TEST STATEMENT)", from.getClause());
+	}
+	
+	public void testDefaultSchema() throws Exception {
+		ClauseFactory factory = ClauseFactory.getInstance();
+		Clause from = factory.getClause("from", "TestTable");
+		assertEquals("from", from.getType());
+		assertEquals("test.TestTable", from.getBody());
+		assertEquals("FROM test.TestTable", from.getClause());
 	}
 
 }

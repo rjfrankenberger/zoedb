@@ -40,7 +40,7 @@ public class TestClauseFactory extends TestCase {
 		Clause from = factory.getClause("from", "TestTable");
 		assertTrue(from instanceof Clause);
 		assertEquals("from", from.getType());
-		assertEquals("TestTable", from.getBody());
+		assertEquals("photostore.TestTable", from.getBody());
 	}
 	
 	public void testGetWhereClause() throws Exception {
@@ -103,7 +103,29 @@ public class TestClauseFactory extends TestCase {
 		Clause from = clauseFactory.getClause("from", nested);
 		assertTrue(from instanceof Clause);
 		assertEquals("from", from.getType());
-		assertEquals("(SELECT * FROM OtherTable WHERE Name='bobby')", from.getBody());
+		assertEquals("(SELECT * FROM photostore.OtherTable WHERE Name='bobby')", from.getBody());
+	}
+	
+	public void testGetValuesClauseWithClauseList() throws Exception {
+		ClauseFactory factory = ClauseFactory.getInstance();
+		Clause values1 = factory.getClause("values", "value1, value2, value3");
+		Clause values2 = factory.getClause("values", "value4, value5, value6");
+		ArrayList<Clause> valuesList = new ArrayList<Clause>();
+		valuesList.add(values1);
+		valuesList.add(values2);
+		Clause values = factory.getClause("values", valuesList);
+		assertTrue(values instanceof Clause);
+		assertEquals("values", values.getType());
+		assertEquals("(value1, value2, value3),(value4, value5, value6)", values.getBody());
+	}
+	
+	public void testGetOrderByClause() throws Exception {
+		ClauseFactory factory = ClauseFactory.getInstance();
+		Clause orderBy = factory.getClause("order by", "state ASC");
+		assertTrue(orderBy instanceof Clause);
+		assertEquals("order by", orderBy.getType());
+		assertEquals("state ASC", orderBy.getBody());
+		assertEquals("ORDER BY state ASC", orderBy.getClause());
 	}
 
 }

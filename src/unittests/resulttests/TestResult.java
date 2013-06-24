@@ -3,6 +3,8 @@ package unittests.resulttests;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
+import zoedb.SQLStatement;
+import zoedb.SQLStatementFactory;
 import zoedb.result.Result;
 import zoedb.result.ResultRow;
 import zoedb.result.RowEntry;
@@ -57,11 +59,23 @@ public class TestResult extends TestCase {
 	
 	public void testJSONString() throws Exception {
 		String testString = "[" +
-							   "{'column1' : 1, 'column2' : 'row1', 'column3' : 1.11}, " +
-							   "{'column1' : 2, 'column2' : 'row2', 'column3' : 2.22}, " +
-							   "{'column1' : 3, 'column2' : 'row3', 'column3' : 3.33}" +
+							   "{\"column1\" : 1, \"column2\" : \"row1\", \"column3\" : 1.11}, " +
+							   "{\"column1\" : 2, \"column2\" : \"row2\", \"column3\" : 2.22}, " +
+							   "{\"column1\" : 3, \"column2\" : \"row3\", \"column3\" : 3.33}" +
 							  "]";
 		assertEquals(testString, r.JSONString());
+	}
+	
+	public void testJSONStringActualLaptop() throws Exception {
+		SQLStatementFactory factory = SQLStatementFactory.getInstance();
+		SQLStatement select = factory.getSQLStatement("select", "mytable");
+		Result result = select.execute();
+		String testString = "[" +
+								"{\"id\" : 2, \"firstname\" : \"bobby\", \"lastname\" : \"frankenberger\", \"age\" : 29, \"dob\" : \"1984-02-28 09:56:24\"}, " +
+								"{\"id\" : 3, \"firstname\" : \"steph\", \"lastname\" : \"frankenberger\", \"age\" : 27, \"dob\" : \"1986-01-22 19:30:20\"}, " +
+								"{\"id\" : 5, \"firstname\" : \"zoe\", \"lastname\" : \"frankenberger\", \"age\" : 0, \"dob\" : \"2013-04-08 09:00:00\"}" +
+							"]";
+		assertEquals(testString, result.JSONString());
 	}
 
 }
