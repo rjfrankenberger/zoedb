@@ -22,6 +22,9 @@ package zoedb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,14 +32,22 @@ import org.json.JSONObject;
 
 import zoedb.connection.ConnectionPool;
 import zoedb.connection.DBConnection;
+import zoedb.exception.NoMoreConnectionsAvailableException;
 import zoedb.result.Result;
+import zoedb.util.SingleLogHandler;
 
 public class InsertStatement implements SQLStatement {
 	
+	private static Logger logger = Logger.getLogger(InsertStatement.class.getName());
 	private String tableName;
 	private ArrayList<Clause> clauses = new ArrayList<Clause>();
 	
 	static {
+		try {
+			logger.addHandler(SingleLogHandler.getInstance().getHandler());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		SQLStatementFactory.getInstance().registerStatementType("insert", InsertStatement.class);
 	}
 	
@@ -46,6 +57,7 @@ public class InsertStatement implements SQLStatement {
 	
 	public InsertStatement(JSONObject json) {
 		try {
+			logger.info(String.format("RECEIVED JSON:\n\t%s", json.toString(2)));
 			this.tableName = json.getString("table");
 			for (String fieldName : JSONObject.getNames(json)) {
 				if(fieldName.equalsIgnoreCase("insert")) {
@@ -67,7 +79,7 @@ public class InsertStatement implements SQLStatement {
 								values = values.substring(0, values.length() - 2);
 								valuesList.add(ClauseFactory.getInstance().getClause("values", values));
 							} catch (Exception e) {
-								e.printStackTrace();
+								logger.severe(e.toString());
 							}
 							values = "";
 						} else {
@@ -87,7 +99,7 @@ public class InsertStatement implements SQLStatement {
 				}
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 		if(this.tableName == null) {
 			this.tableName = "";
@@ -120,7 +132,7 @@ public class InsertStatement implements SQLStatement {
 		try {
 			values = ClauseFactory.getInstance().getClause("values", valuesList);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 		
 		return String.format("%s %s;", insert.getClause(), values.getClause());
@@ -136,7 +148,7 @@ public class InsertStatement implements SQLStatement {
 				clauses.add(factory.getClause(clauseType, body));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 	}
 	
@@ -149,7 +161,7 @@ public class InsertStatement implements SQLStatement {
 				clauses.add(factory.getClause(clauseType, list));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 	}
 	
@@ -162,11 +174,15 @@ public class InsertStatement implements SQLStatement {
 	}
 
 	public Result execute() {
-		ConnectionPool pool = ConnectionPool.getInstance();
-		DBConnection con = pool.getConnection("standard");
-		Result result = con.execute(this);
-		
-		try {
+		Result result = new Result();
+		try {	
+			ConnectionPool pool = ConnectionPool.getInstance();
+			DBConnection con;
+
+			con = pool.getConnection("standard");
+
+			result = con.execute(this);
+
 			SQLStatement select = SQLStatementFactory.getInstance().getSQLStatement("select", this.tableName);
 			String[] columns = null;
 			ArrayList<String[]> values = new ArrayList<String[]>();
@@ -188,7 +204,7 @@ public class InsertStatement implements SQLStatement {
 					values.add(body.split(", "));
 				}
 			}
-			
+
 			for(int i = 0; i < columns.length; i++) {
 				String whereBody = "(";
 				for (String[] row : values) {
@@ -198,12 +214,12 @@ public class InsertStatement implements SQLStatement {
 				select.addClause("where", whereBody);
 			}
 			result = select.execute();
+			pool.releaseConnection(con);
+		} catch (NoMoreConnectionsAvailableException e) {
+			logger.severe(e.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		
-		pool.releaseConnection(con);
+			logger.severe(e.toString());
+		}	
 		return result;
 	}
 }

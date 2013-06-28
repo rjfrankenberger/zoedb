@@ -22,6 +22,7 @@ package zoedb;
 public class JoinClause implements Clause {
 	
 	private final String body;
+	private final String mod;
 	
 	static {
 		ClauseFactory.getInstance().registerClauseType("join", JoinClause.class);
@@ -29,6 +30,12 @@ public class JoinClause implements Clause {
 	
 	public JoinClause(String clauseBody) {
 		this.body = clauseBody;
+		this.mod = null;
+	}
+	
+	public JoinClause(String clauseBody, String mod) {
+		this.body = clauseBody;
+		this.mod = mod;
 	}
 
 	@Override
@@ -43,7 +50,13 @@ public class JoinClause implements Clause {
 
 	@Override
 	public String getClause() {
-		return "JOIN " + this.body;
+		String clause;
+		if(this.mod != null) {
+			clause = this.mod.toUpperCase() + " JOIN " + this.body; 
+		} else {
+			clause = "JOIN " + this.body;
+		}
+		return clause;
 	}
 
 }

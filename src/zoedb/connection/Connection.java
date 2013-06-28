@@ -21,6 +21,7 @@ package zoedb.connection;
 import java.util.Arrays;
 
 import zoedb.SQLStatement;
+import zoedb.exception.NoMoreConnectionsAvailableException;
 import zoedb.result.Result;
 
 public class Connection {
@@ -31,7 +32,7 @@ public class Connection {
 		pool = ConnectionPool.getInstance();
 	}
 	
-	public Result executeStatement(SQLStatement stmt) {
+	public Result executeStatement(SQLStatement stmt) throws NoMoreConnectionsAvailableException{
 		DBConnection con = pool.getConnection("standard");
 		return con.execute(stmt);
 	}

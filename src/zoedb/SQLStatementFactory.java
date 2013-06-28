@@ -21,6 +21,7 @@ package zoedb;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.logging.LogManager;
 
 import org.json.JSONObject;
 
@@ -33,6 +34,7 @@ public class SQLStatementFactory {
 	private static HashMap registeredStatementTypes = new HashMap();
 	
 	static {
+//		LogManager.getLogManager().reset();
 		zoedb.util.TypeLoader.loadTypes();
 	}
 	

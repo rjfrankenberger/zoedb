@@ -29,20 +29,30 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import zoedb.SQLStatement;
 import zoedb.SQLStatementFactory;
 import zoedb.result.Result;
 import zoedb.result.ResultRow;
 import zoedb.result.RowEntry;
+import zoedb.util.SingleLogHandler;
 
 public class StandardConnection implements DBConnection {
 	
+	private static Logger logger = Logger.getLogger(StandardConnection.class.getName());
 	private static DBProperties props = DBProperties.getProperties();
 	private boolean isAvailable;
 	private java.sql.Connection con = null;
 	
 	static {
+		try {
+			logger.addHandler(SingleLogHandler.getInstance().getHandler());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		ConnectionPool.getInstance().registerConnectionType("standard", StandardConnection.class);
 	}
 	
@@ -56,8 +66,10 @@ public class StandardConnection implements DBConnection {
 			Class.forName(driver);
 			this.con = DriverManager.getConnection("jdbc:mysql://" + hostname, user, pass);
 		} catch (ClassNotFoundException e) {
+			logger.severe(e.toString());
 			e.printStackTrace();
 		} catch (SQLException e) {
+			logger.severe(e.toString());
 			e.printStackTrace();
 		}
 	}
@@ -65,6 +77,10 @@ public class StandardConnection implements DBConnection {
 	@Override
 	public boolean isAvailable() {
 		return this.isAvailable;
+	}
+	
+	public String getType() {
+		return "standard";
 	}
 	
 	@Override
@@ -79,70 +95,74 @@ public class StandardConnection implements DBConnection {
 	
 	@Override
 	public Result execute(SQLStatement stmt) {
-			System.out.println(stmt.getStatement());
-			Result result = new Result();
-			ArrayList<String> columnNames = new ArrayList<String>();
-			ArrayList<Integer> columnTypes = new ArrayList<Integer>();
-			ResultSet rs = null;
-			ResultSetMetaData md = null;
-			try {
-				Statement statement = this.con.createStatement();
-				if(stmt.getType().equalsIgnoreCase("select")) {
-					rs = statement.executeQuery(stmt.getStatement());
-					md = rs.getMetaData();
-					// get column names to pass to Result constructor
-					for(int i = 1; i <= md.getColumnCount(); i++) {
-						columnNames.add(md.getColumnName(i));
-						columnTypes.add(md.getColumnType(i));
-					}
-					result = new Result(columnNames);
-					while(rs.next()) {
-						ResultRow row = new ResultRow();
-						for(int i = 0; i < columnNames.size(); i++) {
-							switch(columnTypes.get(i)) {
-								case Types.INTEGER:
-								{
-									row.add(new RowEntry(columnNames.get(i), rs.getInt(columnNames.get(i))));
-									break;
-								}
-								case Types.VARCHAR:
-								{
-									row.add(new RowEntry(columnNames.get(i), rs.getString(columnNames.get(i))));
-									break;
-								}
-								case Types.TIMESTAMP:
-								{
-									Timestamp t = rs.getTimestamp(columnNames.get(i));
-									java.util.Date d = t;
-									SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-									String date = sdf.format(d);
-									row.add(new RowEntry(columnNames.get(i), date));
-									break;
-								}
-								default:
-								{
-									row.add(new RowEntry(columnNames.get(i), rs.getString(columnNames.get(i))));
-								}
-							}
-						}
-						result.insert(row);
-					}
-				} else if(stmt.getType().equalsIgnoreCase("insert")) {
-					statement.execute(stmt.getStatement());
-				} else if(stmt.getType().equalsIgnoreCase("update")) {
-					statement.executeUpdate(stmt.getStatement());
-				} else if(stmt.getType().equalsIgnoreCase("delete")) {
-					statement.execute(stmt.getStatement());
-				} else {
-					// throw an exception 
+		logger.info("\n\tPREPARING TO EXECUTE SQL:\n\t\t" + stmt.getStatement());
+		Result result = new Result();
+		ArrayList<String> columnNames = new ArrayList<String>();
+		ArrayList<Integer> columnTypes = new ArrayList<Integer>();
+		ResultSet rs = null;
+		ResultSetMetaData md = null;
+		try {
+			Statement statement = this.con.createStatement();
+			if(stmt.getType().equalsIgnoreCase("select")) {
+				rs = statement.executeQuery(stmt.getStatement());
+				md = rs.getMetaData();
+				// get column names to pass to Result constructor
+				for(int i = 1; i <= md.getColumnCount(); i++) {
+					columnNames.add(md.getColumnName(i));
+					columnTypes.add(md.getColumnType(i));
 				}
-				
-			} catch (SQLException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			} 
-			return result;
+				result = new Result(columnNames);
+				while(rs.next()) {
+					ResultRow row = new ResultRow();
+					for(int i = 0; i < columnNames.size(); i++) {
+						switch(columnTypes.get(i)) {
+						case Types.INTEGER:
+						{
+							row.add(new RowEntry(columnNames.get(i), rs.getInt(columnNames.get(i))));
+							break;
+						}
+						case Types.VARCHAR:
+						{
+							row.add(new RowEntry(columnNames.get(i), rs.getString(columnNames.get(i))));
+							break;
+						}
+						case Types.TIMESTAMP:
+						{
+							Timestamp t = rs.getTimestamp(columnNames.get(i));
+							java.util.Date d = t;
+							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+							String date = sdf.format(d);
+							row.add(new RowEntry(columnNames.get(i), date));
+							break;
+						}
+						default:
+						{
+							row.add(new RowEntry(columnNames.get(i), rs.getString(columnNames.get(i))));
+						}
+						}
+					}
+					result.insert(row);
+				}
+			} else if(stmt.getType().equalsIgnoreCase("insert")) {
+				statement.execute(stmt.getStatement());
+			} else if(stmt.getType().equalsIgnoreCase("update")) {
+				statement.executeUpdate(stmt.getStatement());
+			} else if(stmt.getType().equalsIgnoreCase("delete")) {
+				statement.execute(stmt.getStatement());
+			} else {
+				// throw an exception 
+			}
+
+		} catch (SQLException e) {
+			logger.severe(e.toString());
+			e.printStackTrace();
+		} catch (Exception e) {
+			logger.severe(e.toString());
+			e.printStackTrace();
+		}
+		logger.info(String.format("\n\tEXECUTION SUCCESSFUL: Result: rows=%d, cols=%d", 
+				result.size(), result.getNumberOfColumns()));
+		return result;
 	}
 	
 }

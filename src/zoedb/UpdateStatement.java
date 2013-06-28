@@ -22,6 +22,9 @@ package zoedb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,13 +33,20 @@ import org.json.JSONObject;
 import zoedb.connection.ConnectionPool;
 import zoedb.connection.DBConnection;
 import zoedb.result.Result;
+import zoedb.util.SingleLogHandler;
 
 public class UpdateStatement implements SQLStatement {
 	
+	private static Logger logger = Logger.getLogger(UpdateStatement.class.getName());
 	private final String tableName;
 	private ArrayList<Clause> clauses = new ArrayList<Clause>();
 	
 	static {
+		try {
+			logger.addHandler(SingleLogHandler.getInstance().getHandler());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		SQLStatementFactory.getInstance().registerStatementType("update", UpdateStatement.class);
 	}
 
@@ -47,6 +57,7 @@ public class UpdateStatement implements SQLStatement {
 	public UpdateStatement(JSONObject json) {
 		String table = "";
 		try {
+			logger.info(String.format("RECEIVED JSON:\n\t%s", json.toString(2)));
 			table = json.getString("table");
 			for (String fieldName : JSONObject.getNames(json)) {
 				if(fieldName.equalsIgnoreCase("set")) {
@@ -70,7 +81,7 @@ public class UpdateStatement implements SQLStatement {
 				}
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 		this.tableName = table;
 	}
@@ -115,7 +126,7 @@ public class UpdateStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, body));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 	}
 	
@@ -124,7 +135,7 @@ public class UpdateStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, list));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 	}
 
@@ -133,7 +144,7 @@ public class UpdateStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, map));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 	}
 	
@@ -142,10 +153,15 @@ public class UpdateStatement implements SQLStatement {
 	}
 	
 	public Result execute() {
-		ConnectionPool pool = ConnectionPool.getInstance();
-		DBConnection con = pool.getConnection("standard");
-		Result result = con.execute(this);
-		pool.releaseConnection(con);
+		Result result = new Result();
+		try {
+			ConnectionPool pool = ConnectionPool.getInstance();
+			DBConnection con = pool.getConnection("standard");
+			result = con.execute(this);
+			pool.releaseConnection(con);
+		} catch (Exception e) {
+			logger.severe(e.toString());
+		}
 		return result;
 	}
 }

@@ -44,7 +44,6 @@ public class DBProperties extends DefaultHandler {
 	
 	static {
 		try {
-			System.out.println(new File(".").getCanonicalPath());
 			propsFile = new File(new File(".").getCanonicalPath() + "/conf", "ZoeDB.properties");
 		} catch (IOException e) {
 			e.printStackTrace();

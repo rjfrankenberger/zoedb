@@ -22,6 +22,9 @@ package zoedb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,14 +32,22 @@ import org.json.JSONObject;
 
 import zoedb.connection.ConnectionPool;
 import zoedb.connection.DBConnection;
+import zoedb.exception.NullObjectException;
 import zoedb.result.Result;
+import zoedb.util.SingleLogHandler;
 
 public class SelectStatement implements SQLStatement {
 	
+	private static Logger logger = Logger.getLogger(SelectStatement.class.getName());
 	private final String tableName;
 	private ArrayList<Clause> clauses = new ArrayList<Clause>();
 	
 	static {
+		try {
+			logger.addHandler(SingleLogHandler.getInstance().getHandler());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		SQLStatementFactory.getInstance().registerStatementType("select", SelectStatement.class);
 	}
 	
@@ -45,13 +56,14 @@ public class SelectStatement implements SQLStatement {
 		try {
 			clauses.add(ClauseFactory.getInstance().getClause("from", tableName));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 	}
 	
 	public SelectStatement(JSONObject json) {
 		String table = "";
 		try {
+			logger.info(String.format("RECEIVED JSON:\n\t%s", json.toString(2)));
 			table = json.getString("table");
 			clauses.add(ClauseFactory.getInstance().getClause("from", table));
 			for (String fieldName : JSONObject.getNames(json)) {
@@ -61,8 +73,13 @@ public class SelectStatement implements SQLStatement {
 					JSONArray joinArray = json.getJSONArray("join");
 					for(int i = 0; i < joinArray.length(); i++) {
 						JSONObject join = joinArray.getJSONObject(i);
-						this.addClause("join", join.getString("table") + " ON " 
-												+ join.getString("lhs") + "=" + join.getString("rhs"));
+						if(join.has("mod")) {
+							this.addClause("join", join.getString("table") + " ON " 
+									+ join.getString("lhs") + "=" + join.getString("rhs"), join.getString("mod"));
+						} else {
+							this.addClause("join", join.getString("table") + " ON " 
+													+ join.getString("lhs") + "=" + join.getString("rhs"));
+						}
 					}
 				} else if(fieldName.equalsIgnoreCase("where")) {
 					JSONArray whereArray = json.getJSONArray("where");
@@ -84,7 +101,7 @@ public class SelectStatement implements SQLStatement {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 		
 		this.tableName = table;
@@ -125,7 +142,7 @@ public class SelectStatement implements SQLStatement {
 			try {
 				select = factory.getClause("select", "*");
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.severe(e.toString());
 			}
 		}
 		
@@ -152,7 +169,17 @@ public class SelectStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, body));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
+		}
+	}
+	
+	@Override
+	public void addClause(String clauseType, String body, String mod) throws NullObjectException {
+		try {
+			ClauseFactory factory = ClauseFactory.getInstance();
+			clauses.add(factory.getClause(clauseType, body, mod));
+		} catch (Exception e) {
+			logger.severe(e.toString());
 		}
 	}
 	
@@ -161,7 +188,7 @@ public class SelectStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, expressionElements));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 	}
 	
@@ -174,16 +201,21 @@ public class SelectStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, nestedStmt));
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.severe(e.toString());
 		}
 	}
 	
 	@Override
 	public Result execute() {
-		ConnectionPool pool = ConnectionPool.getInstance();
-		DBConnection con = pool.getConnection("standard");
-		Result result = con.execute(this);
-		pool.releaseConnection(con);
+		Result result = new Result();
+		try {
+			ConnectionPool pool = ConnectionPool.getInstance();
+			DBConnection con = pool.getConnection("standard");
+			result = con.execute(this);
+			pool.releaseConnection(con);
+		} catch (Exception e) {
+			logger.severe(e.toString());
+		}
 		return result;
 	}
 

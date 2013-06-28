@@ -25,6 +25,7 @@ import zoedb.result.Result;
 public interface DBConnection {
 	
 	public boolean isAvailable();
+	public String getType();
 	public void setUnavailable();
 	public void setAvailable();
 	public Result execute(SQLStatement stmt);

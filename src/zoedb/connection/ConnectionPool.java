@@ -26,15 +26,28 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+
+import zoedb.exception.NoMoreConnectionsAvailableException;
+import zoedb.exception.TypeNotRegisteredException;
+import zoedb.util.SingleLogHandler;
 
 public class ConnectionPool {
 	
+	private static Logger logger = Logger.getLogger(ConnectionPool.class.getName());
 	private static ConnectionPool instance;
 	private static HashMap registeredConnectionTypes = new HashMap();
 	private static int maxPoolSize;
 	private HashMap<String,ArrayList<DBConnection>> pool;
 	
 	private ConnectionPool() {
+		try {
+			logger.addHandler(SingleLogHandler.getInstance().getHandler());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		this.pool = new HashMap<String,ArrayList<DBConnection>>();
 		this.updatePoolWithNewRegisteredConnectionTypes();
 	}
@@ -46,7 +59,7 @@ public class ConnectionPool {
 		return instance;
 	}
 	
-	public DBConnection getConnection(String type) {
+	public DBConnection getConnection(String type) throws NoMoreConnectionsAvailableException {
 		DBConnection returnConnection = null;
 		if(pool.containsKey(type)) {
 			ArrayList<DBConnection> connections = pool.get(type);
@@ -56,13 +69,29 @@ public class ConnectionPool {
 					break;
 				}
 			}
+			if(returnConnection != null) {
+				returnConnection.setUnavailable();
+			} else {
+				throw new NoMoreConnectionsAvailableException(type);
+			}
+		} else {
+			logger.warning("\n\tAttempted to get unregistered connection type: '" + type + "'.");
 		}
-		returnConnection.setUnavailable();
+		logger.info(String.format("\n\tCONNECTION ACQUIRED: type='%s' : Pool Size=%d, Busy(%d), Avail(%d)",
+				type, 
+				pool.get(type).size(),
+				(pool.get(type).size() - getNumberOfAvailableConnections(type)),
+				getNumberOfAvailableConnections(type)));
 		return returnConnection;
 	}
 	
 	public void releaseConnection(DBConnection con) {
 		con.setAvailable();
+		logger.info(String.format("\n\tCONNECTION RELEASED: type='%s' : Pool Size=%d, Busy(%d), Avail(%d)",
+				con.getType(),
+				pool.get(con.getType()).size(),
+				(pool.get(con.getType()).size() - getNumberOfAvailableConnections(con.getType())),
+				getNumberOfAvailableConnections(con.getType())));
 	}
 	
 	public int getNumberOfAvailableConnections(String type) {
@@ -99,12 +128,16 @@ public class ConnectionPool {
 					try {
 						connections.add((DBConnection)constructor.newInstance());
 					} catch (InstantiationException e) {
+						logger.severe(e.toString());
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
+						logger.severe(e.toString());
 						e.printStackTrace();
 					} catch (IllegalArgumentException e) {
+						logger.severe(e.toString());
 						e.printStackTrace();
 					} catch (InvocationTargetException e) {
+						logger.severe(e.toString());
 						e.printStackTrace();
 					}
 				}

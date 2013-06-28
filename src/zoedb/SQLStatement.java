@@ -33,6 +33,7 @@ public interface SQLStatement {
 	public String getTableName();
 	public String getStatement();
 	public void addClause(String clauseType, String body) throws NullObjectException;
+	public void addClause(String clauseType, String body, String mod) throws NullObjectException;
 	public void addClause(String clauseType, List expressionElements) throws NullObjectException;
 	public void addClause(String clauseType, Map map) throws NullObjectException;
 	public void addClause(String clauseType, SQLStatement nestedStmt) throws NullObjectException;
@@ -59,6 +60,10 @@ public interface SQLStatement {
 		public void addClause(String clauseType, String body) throws NullObjectException {
 			throw new NullObjectException();
 			
+		}
+		
+		public void addClause(String clauseType, String body, String mod) throws NullObjectException {
+			throw new NullObjectException();
 		}
 
 		@Override

@@ -34,8 +34,12 @@ public class ValuesClause implements Clause {
 		this.body = String.format("(%s)", values);
 	}
 	
-	public ValuesClause(List values) {
+	public ValuesClause(List values) throws IllegalArgumentException {
 		String theBody = "";
+		if(values.size() <= 0) {
+			throw new IllegalArgumentException(
+					"ValuesClause constructor was passed an empty list.");
+		}
 		if(values.get(0) instanceof ValuesClause) {
 			for (Object clause : values) {
 				theBody += ((ValuesClause)clause).body + ",";
