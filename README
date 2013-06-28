@@ -20,3 +20,8 @@ v1.2.0
 -- Multiple rows can now be added via INSERT statements by successive calls to insertStmt.addClause("values", <comma separated values string>)
 -- Multiple rows insertion was added to the JSON functionality. 
 -- SELECT statements now support GROUP BY clauses.
+
+v1.3.0
+-- Added very basic logging using java.util.logging. Logs are output to zoedb.log
+-- Logging consists of information regarding acquisition and release of connections from the connection pool, output of SQL statement to be executed, output of JSON strings to be converted, and exception messages that are thrown.
+-- SELECT statements now support LEFT JOIN and RIGHT JOIN clauses.
