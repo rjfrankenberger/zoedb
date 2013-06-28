@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import zoedb.SQLStatement;
 import zoedb.SQLStatementFactory;
 import zoedb.UpdateStatement;
+import zoedb.result.Result;
 
 public class TestUpdateStatement extends TestCase {
 
@@ -78,14 +79,14 @@ public class TestUpdateStatement extends TestCase {
 					   "AND attr4='val4';", update.getStatement());
 	}
 	
-//	public void testExecute() throws Exception {
-//		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-//		SQLStatement update = factory.getSQLStatement("update", "test.mytable");
-//		update.addClause("set", "firstname='steph'");
-//		update.addClause("where", "firstname='stephanie'");
-//		Result result = update.execute();
-//		assertNotNull(result);
-//		assertEquals(0, result.getNumberOfColumns());
-//	}
+	public void testExecute() throws Exception {
+		SQLStatementFactory factory = SQLStatementFactory.getInstance();
+		SQLStatement update = factory.getSQLStatement("update", "test.mytable");
+		update.addClause("set", "firstname='steph'");
+		update.addClause("where", "firstname='stephanie'");
+		Result result = update.execute();
+		assertNotNull(result);
+		assertEquals(0, result.getNumberOfColumns());
+	}
 
 }

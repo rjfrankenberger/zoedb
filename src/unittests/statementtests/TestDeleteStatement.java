@@ -51,12 +51,12 @@ public class TestDeleteStatement extends TestCase {
 					   "AND attr2='val2';", delete.getStatement());
 	}
 
-//	public void testExecute() throws Exception {
-//		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-//		SQLStatement delete = factory.getSQLStatement("delete", "test.mytable");
-//		delete.addClause("where", "firstname='debra'");
-//		Result result = delete.execute();
-//		assertNotNull(result);
-//		assertEquals(0, result.getNumberOfColumns());
-//	}
+	public void testExecute() throws Exception {
+		SQLStatementFactory factory = SQLStatementFactory.getInstance();
+		SQLStatement delete = factory.getSQLStatement("delete", "test.mytable");
+		delete.addClause("where", "firstname='debra'");
+		Result result = delete.execute();
+		assertNotNull(result);
+		assertEquals(0, result.getNumberOfColumns());
+	}
 }

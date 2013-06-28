@@ -8,6 +8,11 @@ import zoedb.connection.StandardConnection;
 import zoedb.result.Result;
 
 public class TestStandardConnection extends TestCase {
+	
+	public void testStatement() throws Exception {
+		DBConnection con = new StandardConnection();
+		assertEquals("standard", con.getType());
+	}
 
 	public void testExecuteStatement() throws Exception {
 		DBConnection con = new StandardConnection();

@@ -97,6 +97,42 @@ public class TestSelectStatement extends TestCase {
 					 "WHERE Name='bobby';", select.getStatement());
 	}
 	
+	public void testCreateWithLeftJoin() throws Exception {
+		SQLStatementFactory factory = SQLStatementFactory.getInstance();
+		SQLStatement select = factory.getSQLStatement("select", "TestTable");
+		List<String> columnList = (List<String>) new ArrayList<String>();
+		columnList.add("column1");
+		columnList.add("column2");
+		columnList.add("column3");
+		select.addClause("select", columnList);
+		select.addClause("join", "YourTable ON TestTable.column1=YourTable.column1", "left");
+		select.addClause("where", "Name='bobby'");
+		assertEquals("select", select.getType());
+		assertEquals("TestTable", select.getTableName());
+		assertEquals("SELECT column1, column2, column3 " +
+					 "FROM photostore.TestTable " +
+					 "LEFT JOIN YourTable ON TestTable.column1=YourTable.column1 " +
+					 "WHERE Name='bobby';", select.getStatement());
+	}
+	
+	public void testCreateWithRightJoin() throws Exception {
+		SQLStatementFactory factory = SQLStatementFactory.getInstance();
+		SQLStatement select = factory.getSQLStatement("select", "TestTable");
+		List<String> columnList = (List<String>) new ArrayList<String>();
+		columnList.add("column1");
+		columnList.add("column2");
+		columnList.add("column3");
+		select.addClause("select", columnList);
+		select.addClause("join", "YourTable ON TestTable.column1=YourTable.column1", "right");
+		select.addClause("where", "Name='bobby'");
+		assertEquals("select", select.getType());
+		assertEquals("TestTable", select.getTableName());
+		assertEquals("SELECT column1, column2, column3 " +
+					 "FROM photostore.TestTable " +
+					 "RIGHT JOIN YourTable ON TestTable.column1=YourTable.column1 " +
+					 "WHERE Name='bobby';", select.getStatement());
+	}
+	
 	public void testCreateWithNestedQuery() throws Exception {
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
 		SQLStatement select = factory.getSQLStatement("select", "TestTable");
@@ -142,7 +178,8 @@ public class TestSelectStatement extends TestCase {
 				 "'table' : 'table1'," +
 				 "'join' : [" +
 				           "{'table' : 'table2', 'lhs' : 'table1.attr', 'rhs' : 'table2.attr'}," +
-				           "{'table' : 'table3', 'lhs' : 'table2.attr', 'rhs' : 'table3.attr'}" +
+				           "{'table' : 'table3', 'lhs' : 'table2.attr', 'rhs' : 'table3.attr'}," +
+				           "{'table' : 'table4', 'lhs' : 'table3.attr', 'rhs' : 'table4.attr', 'mod' : 'left'}" +
 				          "], " +
 				 "'where' : [" +
 				            "{'attribute' : 'attr1', 'value' : 'val1'}," +
@@ -162,16 +199,17 @@ public class TestSelectStatement extends TestCase {
 					 "FROM photostore.table1 " +
 					 "JOIN table2 ON table1.attr=table2.attr " +
 					 "JOIN table3 ON table2.attr=table3.attr " +
+					 "LEFT JOIN table4 ON table3.attr=table4.attr " +
 					 "WHERE attr1='val1' " +
 					   "AND attr2='val2' " +
 					 "ORDER BY attr1, attr2 DESC;", select.getStatement());
 	}
 	
-	public void testExecute() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "test.mytable");
-		Result result = select.execute();
-		assertNotNull(result);
-	}
+//	public void testExecute() throws Exception {
+//		SQLStatementFactory factory = SQLStatementFactory.getInstance();
+//		SQLStatement select = factory.getSQLStatement("select", "test.mytable");
+//		Result result = select.execute();
+//		assertNotNull(result);
+//	}
 
 }

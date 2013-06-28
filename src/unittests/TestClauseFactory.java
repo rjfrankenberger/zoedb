@@ -6,8 +6,16 @@ import java.util.HashMap;
 import junit.framework.TestCase;
 import zoedb.Clause;
 import zoedb.ClauseFactory;
+import zoedb.FromClause;
+import zoedb.InsertClause;
+import zoedb.JoinClause;
+import zoedb.OrderByClause;
 import zoedb.SQLStatement;
 import zoedb.SQLStatementFactory;
+import zoedb.SelectClause;
+import zoedb.SetClause;
+import zoedb.ValuesClause;
+import zoedb.WhereClause;
 import zoedb.exception.TypeNotRegisteredException;
 
 public class TestClauseFactory extends TestCase {
@@ -30,7 +38,7 @@ public class TestClauseFactory extends TestCase {
 	public void testGetSelectClause() throws Exception {
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause select = factory.getClause("select", "*");
-		assertTrue(select instanceof Clause);
+		assertTrue(select instanceof SelectClause);
 		assertEquals("select", select.getType());
 		assertEquals("*", select.getBody());
 	}
@@ -38,7 +46,7 @@ public class TestClauseFactory extends TestCase {
 	public void testGetFromClause() throws Exception {
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause from = factory.getClause("from", "TestTable");
-		assertTrue(from instanceof Clause);
+		assertTrue(from instanceof FromClause);
 		assertEquals("from", from.getType());
 		assertEquals("photostore.TestTable", from.getBody());
 	}
@@ -46,7 +54,7 @@ public class TestClauseFactory extends TestCase {
 	public void testGetWhereClause() throws Exception {
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause where = factory.getClause("where", "Name='bobby'");
-		assertTrue(where instanceof Clause);
+		assertTrue(where instanceof WhereClause);
 		assertEquals("where", where.getType());
 		assertEquals("Name='bobby'", where.getBody());
 	}
@@ -54,7 +62,7 @@ public class TestClauseFactory extends TestCase {
 	public void testGetInsertClause() throws Exception {
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause insert = factory.getClause("insert", "TestTable", "column1, column2, column3");
-		assertTrue(insert instanceof Clause);
+		assertTrue(insert instanceof InsertClause);
 		assertEquals("insert", insert.getType());
 		assertEquals("TestTable (column1, column2, column3)", insert.getBody());
 	}
@@ -66,7 +74,7 @@ public class TestClauseFactory extends TestCase {
 		columns.add("column2");
 		columns.add("column3");
 		Clause insert = factory.getClause("insert", "TestTable", columns);
-		assertTrue(insert instanceof Clause);
+		assertTrue(insert instanceof InsertClause);
 		assertEquals("insert", insert.getType());
 		assertEquals("TestTable (column1, column2, column3)", insert.getBody());
 	}
@@ -78,7 +86,7 @@ public class TestClauseFactory extends TestCase {
 		valueList.add("value2");
 		valueList.add("value3");
 		Clause values = factory.getClause("values", valueList);
-		assertTrue(values instanceof Clause);
+		assertTrue(values instanceof ValuesClause);
 		assertEquals("values", values.getType());
 		assertEquals("(value1, value2, value3)", values.getBody());
 	}
@@ -90,7 +98,7 @@ public class TestClauseFactory extends TestCase {
 		map.put("Age", "29");
 		map.put("Married", "'yes'");
 		Clause set = factory.getClause("set", map);
-		assertTrue(set instanceof Clause);
+		assertTrue(set instanceof SetClause);
 		assertEquals("set", set.getType());
 		assertEquals("Name='bobby', Age=29, Married='yes'", set.getBody());
 	}
@@ -101,7 +109,7 @@ public class TestClauseFactory extends TestCase {
 		SQLStatement nested = sqlFactory.getSQLStatement("select", "OtherTable");
 		nested.addClause("where", "Name='bobby'");
 		Clause from = clauseFactory.getClause("from", nested);
-		assertTrue(from instanceof Clause);
+		assertTrue(from instanceof FromClause);
 		assertEquals("from", from.getType());
 		assertEquals("(SELECT * FROM photostore.OtherTable WHERE Name='bobby')", from.getBody());
 	}
@@ -114,7 +122,7 @@ public class TestClauseFactory extends TestCase {
 		valuesList.add(values1);
 		valuesList.add(values2);
 		Clause values = factory.getClause("values", valuesList);
-		assertTrue(values instanceof Clause);
+		assertTrue(values instanceof ValuesClause);
 		assertEquals("values", values.getType());
 		assertEquals("(value1, value2, value3),(value4, value5, value6)", values.getBody());
 	}
@@ -122,10 +130,37 @@ public class TestClauseFactory extends TestCase {
 	public void testGetOrderByClause() throws Exception {
 		ClauseFactory factory = ClauseFactory.getInstance();
 		Clause orderBy = factory.getClause("order by", "state ASC");
-		assertTrue(orderBy instanceof Clause);
+		assertTrue(orderBy instanceof OrderByClause);
 		assertEquals("order by", orderBy.getType());
 		assertEquals("state ASC", orderBy.getBody());
 		assertEquals("ORDER BY state ASC", orderBy.getClause());
+	}
+	
+	public void testGetJoinClause() throws Exception {
+		ClauseFactory factory = ClauseFactory.getInstance();
+		Clause join = factory.getClause("join", "YourTable ON HisTable.id=YourTable.id");
+		assertTrue(join instanceof JoinClause);
+		assertEquals("join", join.getType());
+		assertEquals("YourTable ON HisTable.id=YourTable.id", join.getBody());
+		assertEquals("JOIN YourTable ON HisTable.id=YourTable.id", join.getClause());
+	}
+	
+	public void testGetLeftJoinClause() throws Exception {
+		ClauseFactory factory = ClauseFactory.getInstance();
+		Clause join = factory.getClause("join", "YourTable ON HisTable.id=YourTable.id", "left");
+		assertTrue(join instanceof JoinClause);
+		assertEquals("join", join.getType());
+		assertEquals("YourTable ON HisTable.id=YourTable.id", join.getBody());
+		assertEquals("LEFT JOIN YourTable ON HisTable.id=YourTable.id", join.getClause());
+	}
+	
+	public void testGetRightJoinClause() throws Exception {
+		ClauseFactory factory = ClauseFactory.getInstance();
+		Clause join = factory.getClause("join", "YourTable ON HisTable.id=YourTable.id", "right");
+		assertTrue(join instanceof JoinClause);
+		assertEquals("join", join.getType());
+		assertEquals("YourTable ON HisTable.id=YourTable.id", join.getBody());
+		assertEquals("RIGHT JOIN YourTable ON HisTable.id=YourTable.id", join.getClause());
 	}
 
 }
