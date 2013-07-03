@@ -25,3 +25,12 @@ v1.3.0
 -- Added very basic logging using java.util.logging. Logs are output to zoedb.log
 -- Logging consists of information regarding acquisition and release of connections from the connection pool, output of SQL statement to be executed, output of JSON strings to be converted, and exception messages that are thrown.
 -- SELECT statements now support LEFT JOIN and RIGHT JOIN clauses.
+
+v1.3.1
+-- Removed logging features as they were far too verbose. May reconsider at a later time.
+-- Fixed bug where DELETE clauses were not pulling the default schema from ZoeDB.properties
+-- Updated unit tests and the included sample ZoeDB.properties file so that executed statements will look for data in the "sakila" database that MySQL provides as a test DB.
+-- Refactored unit tests to rely less heavily on classes outside those that they are testing. 
+-- Fixed a bug where DB connections were being made and never closed causing timeout errors. 
+-- Fixed a bug where DELETE statements were not outputting correct DB when explicitly declared in the constructor.
+-- Fixed a bug where statements and clauses were not properly setting the DB to use.
