@@ -66,14 +66,17 @@ public class TestResult extends TestCase {
 		assertEquals(testString, r.JSONString());
 	}
 	
-	public void testJSONStringActualLaptop() throws Exception {
+	public void testJSONStringActual() throws Exception {
 		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "mytable");
+		SQLStatement select = factory.getSQLStatement("select", "language");
 		Result result = select.execute();
 		String testString = "[" +
-								"{\"id\" : 2, \"firstname\" : \"bobby\", \"lastname\" : \"frankenberger\", \"age\" : 29, \"dob\" : \"1984-02-28 09:56:24\"}, " +
-								"{\"id\" : 3, \"firstname\" : \"steph\", \"lastname\" : \"frankenberger\", \"age\" : 27, \"dob\" : \"1986-01-22 19:30:20\"}, " +
-								"{\"id\" : 5, \"firstname\" : \"zoe\", \"lastname\" : \"frankenberger\", \"age\" : 0, \"dob\" : \"2013-04-08 09:00:00\"}" +
+								"{\"language_id\" : 1, \"name\" : \"English\", \"last_update\" : \"2006-02-15 05:02:19\"}, " +
+								"{\"language_id\" : 2, \"name\" : \"Italian\", \"last_update\" : \"2006-02-15 05:02:19\"}, " +
+								"{\"language_id\" : 3, \"name\" : \"Japanese\", \"last_update\" : \"2006-02-15 05:02:19\"}, " +
+								"{\"language_id\" : 4, \"name\" : \"Mandarin\", \"last_update\" : \"2006-02-15 05:02:19\"}, " +
+								"{\"language_id\" : 5, \"name\" : \"French\", \"last_update\" : \"2006-02-15 05:02:19\"}, " +
+								"{\"language_id\" : 6, \"name\" : \"German\", \"last_update\" : \"2006-02-15 05:02:19\"}" +
 							"]";
 		assertEquals(testString, result.JSONString());
 	}

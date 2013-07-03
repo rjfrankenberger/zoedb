@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import zoedb.SQLStatement;
+import zoedb.exception.NullObjectException;
 import zoedb.result.Result;
 
 public class TestStatement implements SQLStatement {
@@ -47,6 +48,13 @@ public class TestStatement implements SQLStatement {
 	@Override
 	public Result execute() {
 		return new Result(Arrays.asList("column1", "column2", "column3"));
+	}
+
+	@Override
+	public void addClause(String clauseType, String body, String mod)
+			throws NullObjectException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

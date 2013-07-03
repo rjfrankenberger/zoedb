@@ -48,7 +48,7 @@ public class TestClauseFactory extends TestCase {
 		Clause from = factory.getClause("from", "TestTable");
 		assertTrue(from instanceof FromClause);
 		assertEquals("from", from.getType());
-		assertEquals("photostore.TestTable", from.getBody());
+		assertEquals("sakila.TestTable", from.getBody());
 	}
 	
 	public void testGetWhereClause() throws Exception {
@@ -64,7 +64,7 @@ public class TestClauseFactory extends TestCase {
 		Clause insert = factory.getClause("insert", "TestTable", "column1, column2, column3");
 		assertTrue(insert instanceof InsertClause);
 		assertEquals("insert", insert.getType());
-		assertEquals("TestTable (column1, column2, column3)", insert.getBody());
+		assertEquals("sakila.TestTable (column1, column2, column3)", insert.getBody());
 	}
 	
 	public void testGetClauseStringStringList() throws Exception {
@@ -76,7 +76,7 @@ public class TestClauseFactory extends TestCase {
 		Clause insert = factory.getClause("insert", "TestTable", columns);
 		assertTrue(insert instanceof InsertClause);
 		assertEquals("insert", insert.getType());
-		assertEquals("TestTable (column1, column2, column3)", insert.getBody());
+		assertEquals("sakila.TestTable (column1, column2, column3)", insert.getBody());
 	}
 	
 	public void testGetClauseStringList() throws Exception {
@@ -111,7 +111,7 @@ public class TestClauseFactory extends TestCase {
 		Clause from = clauseFactory.getClause("from", nested);
 		assertTrue(from instanceof FromClause);
 		assertEquals("from", from.getType());
-		assertEquals("(SELECT * FROM photostore.OtherTable WHERE Name='bobby')", from.getBody());
+		assertEquals("(SELECT * FROM sakila.OtherTable WHERE Name='bobby')", from.getBody());
 	}
 	
 	public void testGetValuesClauseWithClauseList() throws Exception {

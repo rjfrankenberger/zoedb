@@ -2,24 +2,22 @@ package unittests.clausetests;
 
 import junit.framework.TestCase;
 import zoedb.Clause;
-import zoedb.ClauseFactory;
+import zoedb.DeleteClause;
 
 public class TestDeleteClause extends TestCase {
 
 	public void testCreateWithString() throws Exception {
-		ClauseFactory factory = ClauseFactory.getInstance();
-		Clause delete = factory.getClause("delete", "TestTable");
+		Clause delete = new DeleteClause("TestTable");
 		assertEquals("delete", delete.getType());
 		assertEquals("TestTable", delete.getBody());
-		assertEquals("DELETE FROM test.TestTable", delete.getClause());
+		assertEquals("DELETE FROM sakila.TestTable", delete.getClause());
 	}
 	
 	public void testSpecifyConnectionName() throws Exception {
-		ClauseFactory factory = ClauseFactory.getInstance();
-		Clause delete = factory.getClause("delete", "TestTable", "secondary");
+		Clause delete = new DeleteClause("TestTable", "secondary");
 		assertEquals("delete", delete.getType());
 		assertEquals("TestTable", delete.getBody());
-		assertEquals("DELETE FROM test.TestTable", delete.getClause());
+		assertEquals("DELETE FROM sakila.TestTable", delete.getClause());
 	}
 
 }

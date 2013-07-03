@@ -8,15 +8,13 @@ import junit.framework.TestCase;
 import org.json.JSONObject;
 
 import zoedb.SQLStatement;
-import zoedb.SQLStatementFactory;
 import zoedb.SelectStatement;
 import zoedb.result.Result;
 
 public class TestSelectStatement extends TestCase {
 
 	public void testCreateWithColumnList() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "TestTable");
+		SQLStatement select = new SelectStatement("TestTable");
 		ArrayList<String> columnList = new ArrayList<String>();
 		columnList.add("column1");
 		columnList.add("column2");
@@ -31,37 +29,42 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("select", select.getType());
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT column1, column2, column3 " +
-					 "FROM photostore.TestTable " +
+					 "FROM sakila.TestTable " +
 					 "WHERE Name='bobby' " +
 					 "ORDER BY city ASC, state DESC, country;", select.getStatement());
 	}
 	
 	public void testCreateWithColumnString() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "TestTable");
+		SQLStatement select = new SelectStatement("TestTable");
 		select.addClause("select", "column1, column2, column3");
 		select.addClause("where", "Name='bobby'");
 		select.addClause("order by", "city ASC");
 		assertEquals("select", select.getType());
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT column1, column2, column3 " +
-					 "FROM photostore.TestTable " +
+					 "FROM sakila.TestTable " +
 					 "WHERE Name='bobby' " +
 					 "ORDER BY city ASC;", select.getStatement());
 	}
 	
 	public void testCreateWithDefaultAll() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "TestTable");
+		SQLStatement select = new SelectStatement("TestTable");
 		select.addClause("where", "Name='bobby'");
 		assertEquals("select", select.getType());
 		assertEquals("TestTable", select.getTableName());
-		assertEquals("SELECT * FROM photostore.TestTable WHERE Name='bobby';", select.getStatement());
+		assertEquals("SELECT * FROM sakila.TestTable WHERE Name='bobby';", select.getStatement());
+	}
+	
+	public void testCreateWithExplicitTable() throws Exception {
+		SQLStatement select = new SelectStatement("test.TestTable");
+		select.addClause("where", "Name='bobby'");
+		assertEquals("select", select.getType());
+		assertEquals("TestTable", select.getTableName());
+		assertEquals("SELECT * FROM test.TestTable WHERE Name='bobby';", select.getStatement());
 	}
 	
 	public void testCreateJoin() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "TestTable");
+		SQLStatement select = new SelectStatement("TestTable");
 		List<String> columnList = (List<String>) new ArrayList<String>();
 		columnList.add("column1");
 		columnList.add("column2");
@@ -72,14 +75,13 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("select", select.getType());
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT column1, column2, column3 " +
-					 "FROM photostore.TestTable " +
+					 "FROM sakila.TestTable " +
 					 "JOIN YourTable ON TestTable.column1=YourTable.column1 " +
 					 "WHERE Name='bobby';", select.getStatement());
 	}
 	
 	public void testCreateMultiJoin() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "TestTable");
+		SQLStatement select = new SelectStatement("TestTable");
 		List<String> columnList = (List<String>) new ArrayList<String>();
 		columnList.add("column1");
 		columnList.add("column2");
@@ -91,15 +93,14 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("select", select.getType());
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT column1, column2, column3 " +
-					 "FROM photostore.TestTable " +
+					 "FROM sakila.TestTable " +
 					 "JOIN YourTable ON TestTable.column1=YourTable.column1 " +
 					 "JOIN NewTable ON YourTable.column1=NewTable.column1 " +
 					 "WHERE Name='bobby';", select.getStatement());
 	}
 	
 	public void testCreateWithLeftJoin() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "TestTable");
+		SQLStatement select = new SelectStatement("TestTable");
 		List<String> columnList = (List<String>) new ArrayList<String>();
 		columnList.add("column1");
 		columnList.add("column2");
@@ -110,14 +111,13 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("select", select.getType());
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT column1, column2, column3 " +
-					 "FROM photostore.TestTable " +
+					 "FROM sakila.TestTable " +
 					 "LEFT JOIN YourTable ON TestTable.column1=YourTable.column1 " +
 					 "WHERE Name='bobby';", select.getStatement());
 	}
 	
 	public void testCreateWithRightJoin() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "TestTable");
+		SQLStatement select = new SelectStatement("TestTable");
 		List<String> columnList = (List<String>) new ArrayList<String>();
 		columnList.add("column1");
 		columnList.add("column2");
@@ -128,15 +128,14 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("select", select.getType());
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT column1, column2, column3 " +
-					 "FROM photostore.TestTable " +
+					 "FROM sakila.TestTable " +
 					 "RIGHT JOIN YourTable ON TestTable.column1=YourTable.column1 " +
 					 "WHERE Name='bobby';", select.getStatement());
 	}
 	
 	public void testCreateWithNestedQuery() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "TestTable");
-		SQLStatement nested = factory.getSQLStatement("select", "YourTable");
+		SQLStatement select = new SelectStatement("TestTable");
+		SQLStatement nested = new SelectStatement("YourTable");
 		
 		nested.addClause("where", "Name='bobby'");
 		
@@ -153,21 +152,20 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("SELECT column1, column2, column3 " +
 					 "FROM (" +
 					 	"SELECT * " +
-					 	"FROM photostore.YourTable " +
+					 	"FROM sakila.YourTable " +
 					 	"WHERE Name='bobby'" +
 					 	") " +
 				 	 "WHERE Age=29;", select.getStatement());
 	}
 	
 	public void testCreateWithSeparateAddWheres() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement select = factory.getSQLStatement("select", "TestTable");
+		SQLStatement select = new SelectStatement("TestTable");
 		select.addClause("where", "Name='bobby'");
 		select.addClause("where", "Age=29");
 		assertEquals("select", select.getType());
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT * " +
-					 "FROM photostore.TestTable " +
+					 "FROM sakila.TestTable " +
 					 "WHERE Name='bobby' " +
 					   "AND Age=29;", select.getStatement());
 	}
@@ -196,7 +194,7 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("select", select.getType());
 		assertEquals("table1", select.getTableName());
 		assertEquals("SELECT * " +
-					 "FROM photostore.table1 " +
+					 "FROM sakila.table1 " +
 					 "JOIN table2 ON table1.attr=table2.attr " +
 					 "JOIN table3 ON table2.attr=table3.attr " +
 					 "LEFT JOIN table4 ON table3.attr=table4.attr " +
@@ -206,8 +204,11 @@ public class TestSelectStatement extends TestCase {
 	}
 	
 //	public void testExecute() throws Exception {
-//		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-//		SQLStatement select = factory.getSQLStatement("select", "test.mytable");
+//		
+//		String jsonString = "{\"type\":\"SELECT\",\"select\":\"photos.id, filename, datetaken, city, state, country, event, uploadedby, dateuploaded, firstname, lastname, tag\",\"table\":\"photostore.photos\",\"join\":[{\"table\":\"photostore.hasperson\",\"lhs\":\"photos.id\",\"rhs\":\"hasperson.id\"},{\"table\":\"photostore.hastag\",\"lhs\":\"photos.id\",\"rhs\":\"hastag.id\"}],\"where\":[],\"order by\":[{\"instruction\":\"dateuploaded DESC\"}]}:";
+//		JSONObject json = new JSONObject(jsonString);
+//		
+//		SQLStatement select = new SelectStatement(json);
 //		Result result = select.execute();
 //		assertNotNull(result);
 //	}

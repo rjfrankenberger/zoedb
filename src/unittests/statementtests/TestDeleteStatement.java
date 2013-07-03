@@ -6,29 +6,37 @@ import org.json.JSONObject;
 
 import zoedb.DeleteStatement;
 import zoedb.SQLStatement;
-import zoedb.SQLStatementFactory;
 import zoedb.result.Result;
 
 public class TestDeleteStatement extends TestCase {
 
 	public void testCreateWithWhereString() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement delete = factory.getSQLStatement("delete", "TestTable");
+		SQLStatement delete = new DeleteStatement("TestTable");
 		delete.addClause("where", "Name='bobby'");
 		assertEquals("delete", delete.getType());
 		assertEquals("TestTable", delete.getTableName());
-		assertEquals("DELETE FROM TestTable " +
+		assertEquals("DELETE FROM sakila.TestTable " +
 					 "WHERE Name='bobby';", delete.getStatement());
 	}
 	
 	public void testCreateWithMultiWhereString() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement delete = factory.getSQLStatement("delete", "TestTable");
+		SQLStatement delete = new DeleteStatement("TestTable");
 		delete.addClause("where", "Name='bobby'");
 		delete.addClause("where", "Age=29");
 		assertEquals("delete", delete.getType());
 		assertEquals("TestTable", delete.getTableName());
-		assertEquals("DELETE FROM TestTable " +
+		assertEquals("DELETE FROM sakila.TestTable " +
+					 "WHERE Name='bobby' " +
+					 "AND Age=29;", delete.getStatement());
+	}
+	
+	public void testCreateWithExplicitTable() throws Exception {
+		SQLStatement delete = new DeleteStatement("test.TestTable");
+		delete.addClause("where", "Name='bobby'");
+		delete.addClause("where", "Age=29");
+		assertEquals("delete", delete.getType());
+		assertEquals("TestTable", delete.getTableName());
+		assertEquals("DELETE FROM test.TestTable " +
 					 "WHERE Name='bobby' " +
 					 "AND Age=29;", delete.getStatement());
 	}
@@ -46,15 +54,14 @@ public class TestDeleteStatement extends TestCase {
 		
 		assertEquals("delete", delete.getType());
 		assertEquals("table1", delete.getTableName());
-		assertEquals("DELETE FROM table1 " +
+		assertEquals("DELETE FROM sakila.table1 " +
 					 "WHERE attr1='val1' " +
 					   "AND attr2='val2';", delete.getStatement());
 	}
 
 	public void testExecute() throws Exception {
-		SQLStatementFactory factory = SQLStatementFactory.getInstance();
-		SQLStatement delete = factory.getSQLStatement("delete", "test.mytable");
-		delete.addClause("where", "firstname='debra'");
+		SQLStatement delete = new DeleteStatement("language");
+		delete.addClause("where", "name='Spanish'");
 		Result result = delete.execute();
 		assertNotNull(result);
 		assertEquals(0, result.getNumberOfColumns());
