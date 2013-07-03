@@ -32,21 +32,17 @@ import org.json.JSONObject;
 
 import zoedb.connection.ConnectionPool;
 import zoedb.connection.DBConnection;
+import zoedb.connection.DBProperties;
+import zoedb.exception.NullObjectException;
 import zoedb.result.Result;
 import zoedb.util.SingleLogHandler;
 
 public class UpdateStatement implements SQLStatement {
 	
-	private static Logger logger = Logger.getLogger(UpdateStatement.class.getName());
 	private final String tableName;
 	private ArrayList<Clause> clauses = new ArrayList<Clause>();
 	
 	static {
-		try {
-			logger.addHandler(SingleLogHandler.getInstance().getHandler());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		SQLStatementFactory.getInstance().registerStatementType("update", UpdateStatement.class);
 	}
 
@@ -57,7 +53,6 @@ public class UpdateStatement implements SQLStatement {
 	public UpdateStatement(JSONObject json) {
 		String table = "";
 		try {
-			logger.info(String.format("RECEIVED JSON:\n\t%s", json.toString(2)));
 			table = json.getString("table");
 			for (String fieldName : JSONObject.getNames(json)) {
 				if(fieldName.equalsIgnoreCase("set")) {
@@ -81,7 +76,7 @@ public class UpdateStatement implements SQLStatement {
 				}
 			}
 		} catch (JSONException e) {
-			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 		this.tableName = table;
 	}
@@ -93,13 +88,18 @@ public class UpdateStatement implements SQLStatement {
 
 	@Override
 	public String getTableName() {
-		return this.tableName;
+		String[] schemaAndTable = null;
+		if(tableName.contains(".")) {
+			schemaAndTable = tableName.split("\\.");
+		}
+		return (schemaAndTable == null) ? this.tableName : schemaAndTable[1];
 	}
 
 	@Override
 	public String getStatement() {
 		Clause set = Clause.NULL;
 		ArrayList<Clause> wheres = new ArrayList<Clause>();
+		String defaultSchema = DBProperties.getProperties().getProperty("defaultschema");
 		for (Clause clause : clauses) {
 			if(clause.getType().equalsIgnoreCase("update")) {
 				
@@ -115,7 +115,9 @@ public class UpdateStatement implements SQLStatement {
 			whereClause += " AND " + wheres.get(i).getBody();
 		}
 		
-		return String.format("UPDATE %s %s %s;", this.tableName,
+		return String.format("UPDATE %s %s %s;", 
+				(defaultSchema == null || this.tableName.contains(".")) ? 
+						this.tableName : defaultSchema + "." + this.tableName,
 										  set.getClause(),
 										  whereClause);
 	}
@@ -126,8 +128,16 @@ public class UpdateStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, body));
 		} catch (Exception e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void addClause(String clauseType, String body, String mod)
+			throws NullObjectException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	public void addClause(String clauseType, List list) {
@@ -135,7 +145,8 @@ public class UpdateStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, list));
 		} catch (Exception e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 	}
 
@@ -144,7 +155,8 @@ public class UpdateStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, map));
 		} catch (Exception e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 	}
 	
@@ -160,7 +172,8 @@ public class UpdateStatement implements SQLStatement {
 			result = con.execute(this);
 			pool.releaseConnection(con);
 		} catch (Exception e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 		return result;
 	}

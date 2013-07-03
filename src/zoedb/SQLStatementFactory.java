@@ -34,7 +34,6 @@ public class SQLStatementFactory {
 	private static HashMap registeredStatementTypes = new HashMap();
 	
 	static {
-//		LogManager.getLogManager().reset();
 		zoedb.util.TypeLoader.loadTypes();
 	}
 	

@@ -36,18 +36,13 @@ import zoedb.util.SingleLogHandler;
 
 public class ConnectionPool {
 	
-	private static Logger logger = Logger.getLogger(ConnectionPool.class.getName());
 	private static ConnectionPool instance;
 	private static HashMap registeredConnectionTypes = new HashMap();
 	private static int maxPoolSize;
+	private static final int DEFAULT_MAX_CONNECTIONS = 10;
 	private HashMap<String,ArrayList<DBConnection>> pool;
 	
 	private ConnectionPool() {
-		try {
-			logger.addHandler(SingleLogHandler.getInstance().getHandler());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		this.pool = new HashMap<String,ArrayList<DBConnection>>();
 		this.updatePoolWithNewRegisteredConnectionTypes();
 	}
@@ -75,9 +70,10 @@ public class ConnectionPool {
 				throw new NoMoreConnectionsAvailableException(type);
 			}
 		} else {
-			logger.warning("\n\tAttempted to get unregistered connection type: '" + type + "'.");
+			
 		}
-		logger.info(String.format("\n\tCONNECTION ACQUIRED: type='%s' : Pool Size=%d, Busy(%d), Avail(%d)",
+		System.out.println(String.format("\n\tCONNECTION ACQUIRED(%d): \n\t\ttype='%s' : Pool Size=%d, Busy(%d), Avail(%d)",
+				returnConnection.hashCode(),
 				type, 
 				pool.get(type).size(),
 				(pool.get(type).size() - getNumberOfAvailableConnections(type)),
@@ -86,8 +82,10 @@ public class ConnectionPool {
 	}
 	
 	public void releaseConnection(DBConnection con) {
+		con.close();
 		con.setAvailable();
-		logger.info(String.format("\n\tCONNECTION RELEASED: type='%s' : Pool Size=%d, Busy(%d), Avail(%d)",
+		System.out.println(String.format("\n\tCONNECTION RELEASED(%d): \n\t\ttype='%s' : Pool Size=%d, Busy(%d), Avail(%d)",
+				con.hashCode(),
 				con.getType(),
 				pool.get(con.getType()).size(),
 				(pool.get(con.getType()).size() - getNumberOfAvailableConnections(con.getType())),
@@ -113,7 +111,8 @@ public class ConnectionPool {
 	}
 	
 	private void updatePoolWithNewRegisteredConnectionTypes() {
-		maxPoolSize = 5;
+		String maxConnections = DBProperties.getProperties().getProperty("maxconnections");
+		maxPoolSize = (maxConnections == null) ? DEFAULT_MAX_CONNECTIONS : Integer.parseInt(maxConnections);
 		Set entrySet = registeredConnectionTypes.entrySet();
 		Iterator iter = entrySet.iterator();
 		while(iter.hasNext()) {
@@ -128,16 +127,16 @@ public class ConnectionPool {
 					try {
 						connections.add((DBConnection)constructor.newInstance());
 					} catch (InstantiationException e) {
-						logger.severe(e.toString());
+//						logger.severe(e.toString());
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
-						logger.severe(e.toString());
+//						logger.severe(e.toString());
 						e.printStackTrace();
 					} catch (IllegalArgumentException e) {
-						logger.severe(e.toString());
+//						logger.severe(e.toString());
 						e.printStackTrace();
 					} catch (InvocationTargetException e) {
-						logger.severe(e.toString());
+//						logger.severe(e.toString());
 						e.printStackTrace();
 					}
 				}

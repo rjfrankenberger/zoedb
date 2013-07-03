@@ -21,6 +21,8 @@ package zoedb;
 
 import java.util.List;
 
+import zoedb.connection.DBProperties;
+
 public class InsertClause implements Clause {
 	
 	private final String body;
@@ -30,10 +32,14 @@ public class InsertClause implements Clause {
 	}
 	
 	public InsertClause(String table, String columns) {
+		table = (table.contains(".")) ? table : 
+			DBProperties.getProperties().getProperty("defaultschema") + "." + table;
 		this.body = String.format("%s (%s)", table, columns);
 	}
 	
 	public InsertClause(String table, List columns) {
+		table = (table.contains(".")) ? table : 
+			DBProperties.getProperties().getProperty("defaultschema") + "." + table;
 		String tempBody = table + " (";
 		for (Object column : columns) {
 			tempBody += (String) column + ", ";

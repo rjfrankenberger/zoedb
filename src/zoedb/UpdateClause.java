@@ -19,6 +19,8 @@
 
 package zoedb;
 
+import zoedb.connection.DBProperties;
+
 public class UpdateClause implements Clause {
 	
 	private final String body;
@@ -28,6 +30,8 @@ public class UpdateClause implements Clause {
 	}
 	
 	public UpdateClause(String table) {
+		table = (table.contains(".")) ? table : 
+			DBProperties.getProperties().getProperty("defaultschema") + "." + table;
 		this.body = table;
 	}
 

@@ -42,36 +42,35 @@ import zoedb.util.SingleLogHandler;
 
 public class StandardConnection implements DBConnection {
 	
-	private static Logger logger = Logger.getLogger(StandardConnection.class.getName());
 	private static DBProperties props = DBProperties.getProperties();
 	private boolean isAvailable;
 	private java.sql.Connection con = null;
 	
+	private String driver = props.getProperty("driver");
+	private String hostname = props.getProperty("dbhost");
+	private String user = props.getProperty("dbuser");
+	private String pass = props.getProperty("dbpass");
+	
 	static {
-		try {
-			logger.addHandler(SingleLogHandler.getInstance().getHandler());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		ConnectionPool.getInstance().registerConnectionType("standard", StandardConnection.class);
 	}
 	
 	public StandardConnection() {
 		isAvailable = true;
-		String driver = props.getProperty("driver");
-		String hostname = props.getProperty("dbhost");
-		String user = props.getProperty("dbuser");
-		String pass = props.getProperty("dbpass");
-		try {
-			Class.forName(driver);
-			this.con = DriverManager.getConnection("jdbc:mysql://" + hostname, user, pass);
-		} catch (ClassNotFoundException e) {
-			logger.severe(e.toString());
-			e.printStackTrace();
-		} catch (SQLException e) {
-			logger.severe(e.toString());
-			e.printStackTrace();
-		}
+		this.driver = props.getProperty("driver");
+		this.hostname = props.getProperty("dbhost");
+		this.user = props.getProperty("dbuser");
+		this.pass = props.getProperty("dbpass");
+//		try {
+//			Class.forName(driver);
+//			this.con = DriverManager.getConnection("jdbc:mysql://" + hostname, user, pass);
+//		} catch (ClassNotFoundException e) {
+////			logger.severe(e.toString());
+//			e.printStackTrace();
+//		} catch (SQLException e) {
+////			logger.severe(e.toString());
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override
@@ -93,9 +92,30 @@ public class StandardConnection implements DBConnection {
 		this.isAvailable = true;
 	}
 	
+	public void close() {
+		try {
+			if(con != null) {
+				if(!con.isClosed()) {
+					this.con.close();
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public Result execute(SQLStatement stmt) {
-		logger.info("\n\tPREPARING TO EXECUTE SQL:\n\t\t" + stmt.getStatement());
+		
+		try {
+			Class.forName(this.driver);
+			this.con = DriverManager.getConnection("jdbc:mysql://" + this.hostname, this.user, this.pass);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 		Result result = new Result();
 		ArrayList<String> columnNames = new ArrayList<String>();
 		ArrayList<Integer> columnTypes = new ArrayList<Integer>();
@@ -117,6 +137,11 @@ public class StandardConnection implements DBConnection {
 					for(int i = 0; i < columnNames.size(); i++) {
 						switch(columnTypes.get(i)) {
 						case Types.INTEGER:
+						{
+							row.add(new RowEntry(columnNames.get(i), rs.getInt(columnNames.get(i))));
+							break;
+						}
+						case Types.TINYINT:
 						{
 							row.add(new RowEntry(columnNames.get(i), rs.getInt(columnNames.get(i))));
 							break;
@@ -154,14 +179,10 @@ public class StandardConnection implements DBConnection {
 			}
 
 		} catch (SQLException e) {
-			logger.severe(e.toString());
 			e.printStackTrace();
 		} catch (Exception e) {
-			logger.severe(e.toString());
 			e.printStackTrace();
 		}
-		logger.info(String.format("\n\tEXECUTION SUCCESSFUL: Result: rows=%d, cols=%d", 
-				result.size(), result.getNumberOfColumns()));
 		return result;
 	}
 	

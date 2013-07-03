@@ -38,16 +38,10 @@ import zoedb.util.SingleLogHandler;
 
 public class SelectStatement implements SQLStatement {
 	
-	private static Logger logger = Logger.getLogger(SelectStatement.class.getName());
 	private final String tableName;
 	private ArrayList<Clause> clauses = new ArrayList<Clause>();
 	
 	static {
-		try {
-			logger.addHandler(SingleLogHandler.getInstance().getHandler());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		SQLStatementFactory.getInstance().registerStatementType("select", SelectStatement.class);
 	}
 	
@@ -56,14 +50,13 @@ public class SelectStatement implements SQLStatement {
 		try {
 			clauses.add(ClauseFactory.getInstance().getClause("from", tableName));
 		} catch (Exception e) {
-			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 	}
 	
 	public SelectStatement(JSONObject json) {
 		String table = "";
 		try {
-			logger.info(String.format("RECEIVED JSON:\n\t%s", json.toString(2)));
 			table = json.getString("table");
 			clauses.add(ClauseFactory.getInstance().getClause("from", table));
 			for (String fieldName : JSONObject.getNames(json)) {
@@ -101,7 +94,7 @@ public class SelectStatement implements SQLStatement {
 				}
 			}
 		} catch (Exception e) {
-			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 		
 		this.tableName = table;
@@ -114,7 +107,11 @@ public class SelectStatement implements SQLStatement {
 
 	@Override
 	public String getTableName() {
-		return this.tableName;
+		String[] schemaAndTable = null;
+		if(tableName.contains(".")) {
+			schemaAndTable = tableName.split("\\.");
+		}
+		return (schemaAndTable == null) ? this.tableName : schemaAndTable[1];
 	}
 
 	@Override
@@ -142,7 +139,7 @@ public class SelectStatement implements SQLStatement {
 			try {
 				select = factory.getClause("select", "*");
 			} catch (Exception e) {
-				logger.severe(e.toString());
+				e.printStackTrace();
 			}
 		}
 		
@@ -169,7 +166,7 @@ public class SelectStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, body));
 		} catch (Exception e) {
-			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 	}
 	
@@ -179,7 +176,7 @@ public class SelectStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, body, mod));
 		} catch (Exception e) {
-			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 	}
 	
@@ -188,7 +185,7 @@ public class SelectStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, expressionElements));
 		} catch (Exception e) {
-			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 	}
 	
@@ -201,7 +198,7 @@ public class SelectStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, nestedStmt));
 		} catch (Exception e) {
-			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 	}
 	
@@ -214,7 +211,7 @@ public class SelectStatement implements SQLStatement {
 			result = con.execute(this);
 			pool.releaseConnection(con);
 		} catch (Exception e) {
-			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 		return result;
 	}

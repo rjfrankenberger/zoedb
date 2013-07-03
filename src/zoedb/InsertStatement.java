@@ -33,21 +33,16 @@ import org.json.JSONObject;
 import zoedb.connection.ConnectionPool;
 import zoedb.connection.DBConnection;
 import zoedb.exception.NoMoreConnectionsAvailableException;
+import zoedb.exception.NullObjectException;
 import zoedb.result.Result;
 import zoedb.util.SingleLogHandler;
 
 public class InsertStatement implements SQLStatement {
 	
-	private static Logger logger = Logger.getLogger(InsertStatement.class.getName());
 	private String tableName;
 	private ArrayList<Clause> clauses = new ArrayList<Clause>();
 	
 	static {
-		try {
-			logger.addHandler(SingleLogHandler.getInstance().getHandler());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		SQLStatementFactory.getInstance().registerStatementType("insert", InsertStatement.class);
 	}
 	
@@ -57,7 +52,6 @@ public class InsertStatement implements SQLStatement {
 	
 	public InsertStatement(JSONObject json) {
 		try {
-			logger.info(String.format("RECEIVED JSON:\n\t%s", json.toString(2)));
 			this.tableName = json.getString("table");
 			for (String fieldName : JSONObject.getNames(json)) {
 				if(fieldName.equalsIgnoreCase("insert")) {
@@ -79,7 +73,8 @@ public class InsertStatement implements SQLStatement {
 								values = values.substring(0, values.length() - 2);
 								valuesList.add(ClauseFactory.getInstance().getClause("values", values));
 							} catch (Exception e) {
-								logger.severe(e.toString());
+//								logger.severe(e.toString());
+								e.printStackTrace();
 							}
 							values = "";
 						} else {
@@ -99,7 +94,8 @@ public class InsertStatement implements SQLStatement {
 				}
 			}
 		} catch (JSONException e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 		if(this.tableName == null) {
 			this.tableName = "";
@@ -113,7 +109,11 @@ public class InsertStatement implements SQLStatement {
 
 	@Override
 	public String getTableName() {
-		return this.tableName;
+		String[] schemaAndTable = null;
+		if(tableName.contains(".")) {
+			schemaAndTable = tableName.split("\\.");
+		}
+		return (schemaAndTable == null) ? this.tableName : schemaAndTable[1];
 	}
 
 	@Override
@@ -132,7 +132,8 @@ public class InsertStatement implements SQLStatement {
 		try {
 			values = ClauseFactory.getInstance().getClause("values", valuesList);
 		} catch (Exception e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 		
 		return String.format("%s %s;", insert.getClause(), values.getClause());
@@ -148,8 +149,16 @@ public class InsertStatement implements SQLStatement {
 				clauses.add(factory.getClause(clauseType, body));
 			}
 		} catch (Exception e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void addClause(String clauseType, String body, String mod)
+			throws NullObjectException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	public void addClause(String clauseType, List list) {
@@ -161,7 +170,8 @@ public class InsertStatement implements SQLStatement {
 				clauses.add(factory.getClause(clauseType, list));
 			}
 		} catch (Exception e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 	}
 	
@@ -216,10 +226,14 @@ public class InsertStatement implements SQLStatement {
 			result = select.execute();
 			pool.releaseConnection(con);
 		} catch (NoMoreConnectionsAvailableException e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		} catch (Exception e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}	
 		return result;
 	}
+
+	
 }

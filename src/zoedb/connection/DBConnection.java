@@ -28,6 +28,7 @@ public interface DBConnection {
 	public String getType();
 	public void setUnavailable();
 	public void setAvailable();
+	public void close();
 	public Result execute(SQLStatement stmt);
 
 }
