@@ -34,3 +34,7 @@ v1.3.1
 -- Fixed a bug where DB connections were being made and never closed causing timeout errors. 
 -- Fixed a bug where DELETE statements were not outputting correct DB when explicitly declared in the constructor.
 -- Fixed a bug where statements and clauses were not properly setting the DB to use.
+
+v1.4.0
+-- It is now possible to specify an operator other than '=' when building WHERE clauses in JSON.
+-- The nesting of SELECT statements in the FROM part of a SQL SELECT is now supported when buildng with JSON. The nested statement is constructed by nesting another JSON structured SELECT in place of the table name. The nested statement should include an additional attribute called "table_alias" used to alias the nested table as per SQL specifications.
