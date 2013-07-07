@@ -76,7 +76,7 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT column1, column2, column3 " +
 					 "FROM sakila.TestTable " +
-					 "JOIN YourTable ON TestTable.column1=YourTable.column1 " +
+					 "JOIN sakila.YourTable ON TestTable.column1=YourTable.column1 " +
 					 "WHERE Name='bobby';", select.getStatement());
 	}
 	
@@ -94,8 +94,8 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT column1, column2, column3 " +
 					 "FROM sakila.TestTable " +
-					 "JOIN YourTable ON TestTable.column1=YourTable.column1 " +
-					 "JOIN NewTable ON YourTable.column1=NewTable.column1 " +
+					 "JOIN sakila.YourTable ON TestTable.column1=YourTable.column1 " +
+					 "JOIN sakila.NewTable ON YourTable.column1=NewTable.column1 " +
 					 "WHERE Name='bobby';", select.getStatement());
 	}
 	
@@ -112,7 +112,7 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT column1, column2, column3 " +
 					 "FROM sakila.TestTable " +
-					 "LEFT JOIN YourTable ON TestTable.column1=YourTable.column1 " +
+					 "LEFT JOIN sakila.YourTable ON TestTable.column1=YourTable.column1 " +
 					 "WHERE Name='bobby';", select.getStatement());
 	}
 	
@@ -129,7 +129,7 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("TestTable", select.getTableName());
 		assertEquals("SELECT column1, column2, column3 " +
 					 "FROM sakila.TestTable " +
-					 "RIGHT JOIN YourTable ON TestTable.column1=YourTable.column1 " +
+					 "RIGHT JOIN sakila.YourTable ON TestTable.column1=YourTable.column1 " +
 					 "WHERE Name='bobby';", select.getStatement());
 	}
 	
@@ -181,7 +181,8 @@ public class TestSelectStatement extends TestCase {
 				          "], " +
 				 "'where' : [" +
 				            "{'attribute' : 'attr1', 'value' : 'val1'}," +
-				            "{'attribute' : 'attr2', 'value' : 'val2'}" +
+				            "{'attribute' : 'attr2', 'value' : 'val2'}," +
+				            "{'attribute' : 'attr3', 'value' : 10, 'op' : '>'}" +
 				           "], " +
 				 "'order by' : [" +
 				 			"{'instruction' : 'attr1'}," +
@@ -195,12 +196,46 @@ public class TestSelectStatement extends TestCase {
 		assertEquals("table1", select.getTableName());
 		assertEquals("SELECT * " +
 					 "FROM sakila.table1 " +
-					 "JOIN table2 ON table1.attr=table2.attr " +
-					 "JOIN table3 ON table2.attr=table3.attr " +
-					 "LEFT JOIN table4 ON table3.attr=table4.attr " +
+					 "JOIN sakila.table2 ON table1.attr=table2.attr " +
+					 "JOIN sakila.table3 ON table2.attr=table3.attr " +
+					 "LEFT JOIN sakila.table4 ON table3.attr=table4.attr " +
 					 "WHERE attr1='val1' " +
 					   "AND attr2='val2' " +
+					   "AND attr3>10 " +
 					 "ORDER BY attr1, attr2 DESC;", select.getStatement());
+	}
+	
+	public void testNestedJSON() throws Exception {
+		String jsonString = "{'type' : 'SELECT'," +
+							 "'select' : 'DISTINCT temp.amount'," +
+							 "'table': {'type' : 'SELECT'," +
+							 		   "'select' : 'first_name, last_name, rental.rental_date, payment.amount'," +
+							 		   "'table' : 'customer'," +
+							 		   "'join' : [" +
+							 		   			 "{'table' : 'rental', 'lhs' : 'customer.customer_id', 'rhs' : 'rental.customer_id', 'mod' : 'left'}," +
+							 		   			 "{'table' : 'payment', 'lhs' : 'customer.customer_id', 'rhs' : 'payment.customer_id', 'mod' : 'left'}" +
+							 		            "]," +
+							 		   "'table alias' : 'temp'" +
+							 		  "}," +
+							 "'where' : [" +
+							 			"{'attribute' : 'amount', 'value' : 8, 'op' : '>'}" +
+							 		   "]" +
+							"}";
+		JSONObject json = new JSONObject(jsonString);
+		SQLStatement select = new SelectStatement(json);
+		
+		assertEquals("select", select.getType());
+		assertEquals("nested", select.getTableName());
+		assertEquals("SELECT DISTINCT temp.amount " +
+					 "FROM (SELECT first_name, last_name, rental.rental_date, payment.amount " +
+					 	   "FROM sakila.customer " +
+					 	   "LEFT JOIN sakila.rental ON customer.customer_id=rental.customer_id " +
+					 	   "LEFT JOIN sakila.payment ON customer.customer_id=payment.customer_id ) AS temp " +
+					 "WHERE amount>8;", select.getStatement());
+		
+		Result result = select.execute();
+		assertEquals(1, result.getNumberOfColumns());
+		assertEquals(6, result.size());
 	}
 	
 //	public void testExecute() throws Exception {
