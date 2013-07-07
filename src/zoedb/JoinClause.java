@@ -19,6 +19,8 @@
 
 package zoedb;
 
+import zoedb.connection.DBProperties;
+
 public class JoinClause implements Clause {
 	
 	private final String body;
@@ -29,12 +31,24 @@ public class JoinClause implements Clause {
 	}
 	
 	public JoinClause(String clauseBody) {
-		this.body = clauseBody;
+		int onKeywordIdx = clauseBody.indexOf("ON");
+		if(clauseBody.substring(0, onKeywordIdx).contains(".")) {
+			this.body = clauseBody;
+		} else {
+			this.body = DBProperties.getProperties().getProperty("defaultschema") + "." + clauseBody;
+		}
+//		this.body = clauseBody;
 		this.mod = null;
 	}
 	
 	public JoinClause(String clauseBody, String mod) {
-		this.body = clauseBody;
+		int onKeywordIdx = clauseBody.indexOf("ON");
+		if(clauseBody.substring(0, onKeywordIdx).contains(".")) {
+			this.body = clauseBody;
+		} else {
+			this.body = DBProperties.getProperties().getProperty("defaultschema") + "." + clauseBody;
+		}
+//		this.body = clauseBody;
 		this.mod = mod;
 	}
 

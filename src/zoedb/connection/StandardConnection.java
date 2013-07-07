@@ -19,7 +19,6 @@
 
 package zoedb.connection;
 
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -29,16 +28,11 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import zoedb.SQLStatement;
-import zoedb.SQLStatementFactory;
 import zoedb.result.Result;
 import zoedb.result.ResultRow;
 import zoedb.result.RowEntry;
-import zoedb.util.SingleLogHandler;
 
 public class StandardConnection implements DBConnection {
 	
@@ -144,6 +138,11 @@ public class StandardConnection implements DBConnection {
 						case Types.TINYINT:
 						{
 							row.add(new RowEntry(columnNames.get(i), rs.getInt(columnNames.get(i))));
+							break;
+						}
+						case Types.DECIMAL:
+						{
+							row.add(new RowEntry(columnNames.get(i), rs.getDouble(columnNames.get(i))));
 							break;
 						}
 						case Types.VARCHAR:

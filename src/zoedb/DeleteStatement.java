@@ -32,21 +32,16 @@ import org.json.JSONObject;
 
 import zoedb.connection.ConnectionPool;
 import zoedb.connection.DBConnection;
+import zoedb.connection.DBProperties;
+import zoedb.exception.NullObjectException;
 import zoedb.result.Result;
-import zoedb.util.SingleLogHandler;
 
 public class DeleteStatement implements SQLStatement {
 	
-	private static Logger logger = Logger.getLogger(DeleteStatement.class.getName());
 	private final String tableName;
 	private ArrayList<Clause> clauses = new ArrayList<Clause>();
 	
 	static {
-		try {
-			logger.addHandler(SingleLogHandler.getInstance().getHandler());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		SQLStatementFactory.getInstance().registerStatementType("delete", DeleteStatement.class);
 	}
 	
@@ -57,7 +52,6 @@ public class DeleteStatement implements SQLStatement {
 	public DeleteStatement(JSONObject json) {
 		String table = "";
 		try {
-			logger.info(String.format("RECEIVED JSON:\n\t%s", json.toString(2)));
 			table = json.getString("table");
 			for (String fieldName : JSONObject.getNames(json)) {
 				if(fieldName.equalsIgnoreCase("where")) {
@@ -71,7 +65,8 @@ public class DeleteStatement implements SQLStatement {
 				}
 			}
 		} catch (JSONException e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 		this.tableName = table;
 	}
@@ -83,12 +78,17 @@ public class DeleteStatement implements SQLStatement {
 
 	@Override
 	public String getTableName() {
-		return this.tableName;
+		String[] schemaAndTable = null;
+		if(tableName.contains(".")) {
+			schemaAndTable = tableName.split("\\.");
+		}
+		return (schemaAndTable == null) ? this.tableName : schemaAndTable[1];
 	}
 
 	@Override
 	public String getStatement() {
 		ArrayList<Clause> wheres = new ArrayList<Clause>();
+		String defaultSchema = DBProperties.getProperties().getProperty("defaultschema");
 		for (Clause clause : clauses) {
 			if(clause.getType().equalsIgnoreCase("where")) {
 				wheres.add(clause);
@@ -100,7 +100,10 @@ public class DeleteStatement implements SQLStatement {
 			whereClause += " AND " + wheres.get(i).getBody();
 		}
 		
-		return String.format("DELETE FROM %s %s;", this.tableName, whereClause);
+		return String.format("DELETE FROM %s %s;", 
+				(defaultSchema == null || this.tableName.contains(".")) ? 
+						this.tableName : defaultSchema + "." + this.tableName, 
+				whereClause);
 	}
 
 	@Override
@@ -109,8 +112,15 @@ public class DeleteStatement implements SQLStatement {
 			ClauseFactory factory = ClauseFactory.getInstance();
 			clauses.add(factory.getClause(clauseType, body));
 		} catch (Exception e) {
-			logger.severe(e.toString());
+			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void addClause(String clauseType, String body, String mod)
+			throws NullObjectException {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
@@ -137,9 +147,12 @@ public class DeleteStatement implements SQLStatement {
 			result = con.execute(this);
 			pool.releaseConnection(con);
 		} catch (Exception e) {
-			logger.severe(e.toString());
+//			logger.severe(e.toString());
+			e.printStackTrace();
 		}
 		return result;
 	}
+
+	
 
 }

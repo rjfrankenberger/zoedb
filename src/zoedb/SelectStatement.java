@@ -22,23 +22,19 @@ package zoedb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import zoedb.connection.ConnectionPool;
 import zoedb.connection.DBConnection;
 import zoedb.exception.NullObjectException;
 import zoedb.result.Result;
-import zoedb.util.SingleLogHandler;
 
 public class SelectStatement implements SQLStatement {
 	
 	private final String tableName;
+	private String nestedAlias = null;
 	private ArrayList<Clause> clauses = new ArrayList<Clause>();
 	
 	static {
@@ -57,10 +53,19 @@ public class SelectStatement implements SQLStatement {
 	public SelectStatement(JSONObject json) {
 		String table = "";
 		try {
-			table = json.getString("table");
-			clauses.add(ClauseFactory.getInstance().getClause("from", table));
 			for (String fieldName : JSONObject.getNames(json)) {
-				if(fieldName.equalsIgnoreCase("select")) {
+				if(fieldName.equalsIgnoreCase("table")) {
+					if(json.get("table") instanceof JSONObject) {
+						JSONObject nestedJSON = json.getJSONObject("table");
+						table = "nested";
+						this.nestedAlias = nestedJSON.getString("table alias");
+						SQLStatement nested = SQLStatementFactory.getInstance().getSQLStatement("select", nestedJSON);
+						clauses.add(ClauseFactory.getInstance().getClause("from", nested));
+					} else {
+						table = json.getString("table");
+						clauses.add(ClauseFactory.getInstance().getClause("from", table));
+					}
+				} else if(fieldName.equalsIgnoreCase("select")) {
 					this.addClause(fieldName, json.getString(fieldName));
 				} else if(fieldName.equalsIgnoreCase("join")) {
 					JSONArray joinArray = json.getJSONArray("join");
@@ -79,7 +84,8 @@ public class SelectStatement implements SQLStatement {
 					for(int i = 0; i < whereArray.length(); i++) {
 						JSONObject where = whereArray.getJSONObject(i);
 						String expression = "";
-						expression += where.getString("attribute") + "=";
+						expression += where.getString("attribute");
+						expression += (where.has("op")) ? where.getString("op") : "=";
 						expression += (where.get("value") instanceof String) ? "'" + where.getString("value") + "'" : where.get("value");
 						this.addClause("where", expression);
 					}
@@ -91,7 +97,7 @@ public class SelectStatement implements SQLStatement {
 						instructions.add(orderBy.getString("instruction"));
 					}
 					this.addClause("order by", instructions);
-				}
+				} 
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -154,7 +160,8 @@ public class SelectStatement implements SQLStatement {
 		}
 		
 		return String.format("%s %s %s%s%s;", select.getClause(), 
-											 from.getClause(), 
+											 (this.tableName.equalsIgnoreCase("nested")) ? 
+													 from.getClause() + " AS "  + this.nestedAlias : from.getClause(), 
 											 joinClause,
 											 whereClause,
 											 (orderBy.equals(Clause.NULL)) ? "" : " " + orderBy.getClause());

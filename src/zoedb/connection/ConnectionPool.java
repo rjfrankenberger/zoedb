@@ -26,13 +26,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import zoedb.exception.NoMoreConnectionsAvailableException;
-import zoedb.exception.TypeNotRegisteredException;
-import zoedb.util.SingleLogHandler;
 
 public class ConnectionPool {
 	

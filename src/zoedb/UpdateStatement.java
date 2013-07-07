@@ -22,9 +22,6 @@ package zoedb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +32,6 @@ import zoedb.connection.DBConnection;
 import zoedb.connection.DBProperties;
 import zoedb.exception.NullObjectException;
 import zoedb.result.Result;
-import zoedb.util.SingleLogHandler;
 
 public class UpdateStatement implements SQLStatement {
 	
